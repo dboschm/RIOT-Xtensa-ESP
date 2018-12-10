@@ -338,6 +338,22 @@ ifneq (,$(filter pcd8544,$(USEMODULE)))
   USEMODULE += xtimer
 endif
 
+ifneq (,$(filter pcf8574a,$(USEMODULE)))
+  USEMODULE += pcf8574
+endif
+
+ifneq (,$(filter pcf857%,$(USEMODULE)))
+  USEMODULE += pcf857x
+endif
+
+ifneq (,$(filter pcf857x,$(USEMODULE)))
+  FEATURES_REQUIRED += periph_gpio
+  FEATURES_REQUIRED += periph_i2c
+  ifneq (,$(filter periph_gpio_irq,$(USEMODULE)))
+    USEMODULE += event
+  endif
+endif
+
 ifneq (,$(filter pir,$(USEMODULE)))
   FEATURES_REQUIRED += periph_gpio
   FEATURES_REQUIRED += periph_gpio_irq
