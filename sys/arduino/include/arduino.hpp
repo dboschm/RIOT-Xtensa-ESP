@@ -97,6 +97,13 @@ void delay(unsigned long msec);
 void delayMicroseconds(unsigned long usec);
 
 /**
+ * @brief   Returns the number of milliseconds since start
+ *
+ * @return value of milliseconds since start
+ */
+unsigned long millis(void);
+
+/**
  * @brief   Returns the number of microseconds since start
  *
  * @return value of microseconds since start
