@@ -1,3 +1,7 @@
+ifneq (, $(filter arduino_lib, $(USEMODULE)))
+    USEMODULE += arduino
+endif
+
 ifneq (,$(filter eepreg,$(USEMODULE)))
   FEATURES_REQUIRED += periph_eeprom
 endif

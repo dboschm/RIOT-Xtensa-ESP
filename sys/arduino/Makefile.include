@@ -2,8 +2,10 @@
 SKETCHES = $(wildcard $(APPDIR)/*.sketch)
 SRCDIR = $(RIOTBASE)/sys/arduino
 
-# run the Arduino pre-build script
-$(shell $(RIOTTOOLS)/arduino/pre_build.sh $(SRCDIR) $(APPDIR) $(SKETCHES))
+# run the Arduino pre-build script if Arduino module is not used as library
+ifeq (, $(filter arduino_lib, $(USEMODULE)))
+    $(shell $(RIOTTOOLS)/arduino/pre_build.sh $(SRCDIR) $(APPDIR) $(SKETCHES))
+endif
 
 # include the Arduino headers
 INCLUDES += -I$(RIOTBASE)/sys/arduino/include
