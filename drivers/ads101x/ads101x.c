@@ -216,3 +216,102 @@ int ads101x_set_alert_parameters(const ads101x_alert_t *dev,
 
     return ADS101X_OK;
 }
+
+#if MODULE_EXTEND_ADC
+
+int ads101x_adc_init(const ads101x_t *dev, adc_t chn)
+{
+    DEBUG("%s: dev %p, chn %u\n", __func__, dev, chn);
+
+    assert(dev != NULL);
+    assert(chn < ads101x_adc_channels(dev));
+
+    return 0;
+}
+
+int ads101x_adc_sample(const ads101x_t *dev, adc_t chn, adc_res_t res)
+{
+    DEBUG("%s: dev %p, chn %u, res %u\n", __func__, dev, chn, res);
+
+    assert(dev != NULL);
+    assert(chn < ads101x_adc_channels(dev));
+
+    /* 16-bit res cannot be supported by ADC API on platforms with 16 bit int */
+    if (res == ADC_RES_16BIT && sizeof(int) == 2) {
+        return -1;
+    }
+
+    /* use only the gain from parameters, mux is set accroding to given chn */
+    uint8_t mux_gain = dev->params.mux_gain & ADS101X_PGA_MASK;
+    
+    switch (chn) {
+        case 0: mux_gain |= ADS101X_AIN0_SINGM; break;
+        case 1: mux_gain |= ADS101X_AIN1_SINGM; break;
+        case 2: mux_gain |= ADS101X_AIN2_SINGM; break;
+        case 3: mux_gain |= ADS101X_AIN3_SINGM; break;
+        default: return -1;
+    }
+
+    /* set the channel for next conversion */
+    if (ads101x_set_mux_gain(dev, mux_gain) != ADS101X_OK) {
+        return -1;
+    }
+
+    int16_t raw;
+    /* execute one conversion for the selected channel */
+    if (ads101x_read_raw(dev, &raw) != 0) {
+        return -1;
+    }
+
+    /**
+     * since ADS101X/111X ADC returns the data as two's complement and
+     * ADC peripheral/extension API only support values in the range from
+     * 0 to 2^n-1, we have to transform the results to unsigned int values
+     * in this range.
+     */
+    /* two's complement to unsigned int in range of 0 ... 2^n-1 */
+    uint16_t tmp = raw + 0x8000;
+
+    /* values are always 16-bit left aligned independent on resolution */
+    switch (res) {
+        case ADC_RES_6BIT:  return tmp >> 10;
+        case ADC_RES_8BIT:  return tmp >> 8;
+        case ADC_RES_10BIT: return tmp >> 6;
+        case ADC_RES_12BIT: return tmp >> 4;
+
+        case ADC_RES_14BIT: if (dev->params.device == ADS101X_DEV_ADS1113 ||
+                                dev->params.device == ADS101X_DEV_ADS1114 ||
+                                dev->params.device == ADS101X_DEV_ADS1115) {
+                                return tmp >> 2;
+                            }
+                            else {
+                                return -1;
+                            }
+
+        case ADC_RES_16BIT: if (dev->params.device == ADS101X_DEV_ADS1113 ||
+                                dev->params.device == ADS101X_DEV_ADS1114 ||
+                                dev->params.device == ADS101X_DEV_ADS1115) {
+                                return tmp;
+                            }
+                            else {
+                                return -1;
+                            }
+        default: return -1;
+    }
+}
+
+unsigned int ads101x_adc_channels(const ads101x_t *dev)
+{
+    DEBUG("%s: dev %p\n", __func__, dev);
+
+    assert(dev != NULL);
+    assert(dev->params.device != ADS101X_DEV_UNKOWN);
+
+    switch(dev->params.device) {
+        case ADS101X_DEV_ADS1015:
+        case ADS101X_DEV_ADS1115: return 4;
+        default: return 1;
+    }
+}
+
+#endif /* MODULE_EXTEND_ADC */
