@@ -36,17 +36,17 @@
  * application has to declare used sensor by means of various
  * pseudomodules as follows:
  *
- *      ADPS9900:     USEMODULE=apds9900
- *      ADPS9901:     USEMODULE=apds9901
- *      ADPS9930:     USEMODULE=apds9930
- *      ADPS9950:     USEMODULE=apds9950
- *      ADPS9960:     USEMODULE=apds9900
+ *      APDS9900:     USEMODULE=apds9900
+ *      APDS9901:     USEMODULE=apds9901
+ *      APDS9930:     USEMODULE=apds9930
+ *      APDS9950:     USEMODULE=apds9950
+ *      APDS9960:     USEMODULE=apds9960
  *
  * This driver provides @ref drivers_saul capabilities.
  *
  * # Measurement Cycle
  *
- * ADPS99XX sensor **measurement cycles** consists of the
+ * APDS99XX sensor **measurement cycles** consists of the
  * following **three steps** in the given order:
  *
  * - **Proximity Sensing**
@@ -56,13 +56,13 @@
  *   time required for proximity sensing (```t_prx``` ) results from the
  *   time it takes to generate the IR LED pulses and to accumlate the
  *   reflected IR energy (```t_prx_acc```) as well as the time for the ADC
- *   conversion (```t_prx_acc```).
+ *   conversion (```t_prx_cnv```).
  *
  *      t_prx = t_prx_acc + t_prx_cnv
  *
  *   The time to generate the IR LED pulses and accumulate reflected IR
  *   energy ```t_prx_acc``` is defined by the number of pulses (parameter
- *   apds99xx_params_t::prx_pulses) and the period of one pulse ```t_pulse```.
+ *   apds99xx_params_t::prx_pulses) and the period of one pulse ```t_prx_pulse```.
  *
  *       t_prx_acc = prx_pulses * t_prx_pulse
  *
