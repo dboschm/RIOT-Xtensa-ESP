@@ -286,12 +286,12 @@ int apds99xx_read_prx_raw (const apds99xx_t *dev, uint16_t *prox)
      return APDS99XX_OK;
 }
 
-int apds99xx_power_down(apds99xx_t *dev)
+int apds99xx_power_down(const apds99xx_t *dev)
 {
     return _update_reg(dev, APDS99XX_REG_ENABLE, APDS99XX_REG_PON, 0);
 }
 
-int apds99xx_power_up(apds99xx_t *dev)
+int apds99xx_power_up(const apds99xx_t *dev)
 {
     return _update_reg(dev, APDS99XX_REG_ENABLE, APDS99XX_REG_PON, 1);
 }
