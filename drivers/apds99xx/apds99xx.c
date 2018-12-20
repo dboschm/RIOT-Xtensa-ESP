@@ -105,14 +105,14 @@ int apds99xx_init(apds99xx_t *dev, const apds99xx_params_t *params)
     }
 #endif
 #if MODULE_APDS9960
-    if (dev->params.prx_pulses > 0 &&        
+    if (dev->params.prx_pulses > 0 &&
         _update_reg(dev, APDS99XX_REG_PPCOUNT,
                          APDS99XX_REG_PPULSE,
                          dev->params.prx_pulses-1) != APDS99XX_OK) {
         return -APDS99XX_ERROR_I2C;
     }
 #else
-    if (_reg_write(dev, APDS99XX_REG_PPCOUNT, &dev->params.prx_pulses, 1) ||;
+    if (_reg_write(dev, APDS99XX_REG_PPCOUNT, &dev->params.prx_pulses, 1) ||
         _update_reg(dev, APDS99XX_REG_CONTROL, APDS99XX_REG_PDIODE, 2)) {
         return -APDS99XX_ERROR_I2C;
     }
@@ -373,8 +373,8 @@ int apds99xx_int_config(apds99xx_t *dev, apds99xx_int_config_t* cfg,
         _reg_write(dev, APDS99XX_REG_PILTH, &pilth, 1) ||
         _reg_write(dev, APDS99XX_REG_PIHTH, &pihth, 1) ||
 #else
-        _reg_write(dev, APDS99XX_REG_PILTL, piltx, 2)) ||
-        _reg_write(dev, APDS99XX_REG_PIHTL, pihtx, 2)) ||
+        _reg_write(dev, APDS99XX_REG_PILTL, piltx, 2) ||
+        _reg_write(dev, APDS99XX_REG_PIHTL, pihtx, 2) ||
 #endif
         _update_reg(dev, APDS99XX_REG_PERS, APDS99XX_REG_APERS, cfg->als_pers) ||
         _update_reg(dev, APDS99XX_REG_PERS, APDS99XX_REG_PPERS, cfg->prx_pers) ||
