@@ -161,7 +161,7 @@ int apds99xx_read_als_raw(const apds99xx_t *dev, uint16_t *raw)
     assert(raw != NULL);
     DEBUG_DEV("raw=%p", dev, raw);
 
-    uint8_t data[6];
+    uint8_t data[2];
 
     if (_reg_read(dev, APDS99XX_REG_CDATAL, data, 2) != APDS99XX_OK) {
         return -APDS99XX_ERROR_RAW_DATA;
