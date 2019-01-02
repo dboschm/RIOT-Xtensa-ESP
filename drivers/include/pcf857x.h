@@ -8,6 +8,7 @@
 
 /**
  * @defgroup    drivers_pcf857x PCF857X I2C I/O expanders
+ * @ingroup     extend_gpio
  * @ingroup     drivers_saul
  * @brief       Device driver for Texas Instruments PCF857X I2C I/O expanders
  *
@@ -174,7 +175,7 @@
  *
  *      USEMODULE="pcf8574a pcf8575" make -C tests/driver_pcf857x BOARD=...
  *
- * Furthermode, used devices have to be configured by defining the
+ * Furthermore, used devices have to be configured by defining the
  * configuration parameter array `pcf857x_params` of type #pcf857x_params_t.
  * The default configuration for one device is defined in
  * `drivers/pcf857x/pcf857x_params.h`. The application can override it by by
