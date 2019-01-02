@@ -56,6 +56,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <errno.h>
 }
 
 #include "Wire.h"
@@ -67,6 +68,12 @@ extern "C" {
 #define ENABLE_DEBUG    (0)
 #include "debug.h"
 
+#define WIRE_PORT_OK                    (0)
+#define WIRE_PORT_ERROR_DATA_TO_LONG    (1)
+#define WIRE_PORT_ERROR_ADDR_NACK       (2)
+#define WIRE_PORT_ERROR_DATA_NACK       (3)
+#define WIRE_PORT_ERROR_OTHER           (4)
+
 /* Initialize Class Variables */
 
 uint8_t WirePort::rxBuffer[WIREPORT_BUFFER_LENGTH];
@@ -77,6 +84,7 @@ uint8_t WirePort::txAddress = 0;
 uint8_t WirePort::txBuffer[WIREPORT_BUFFER_LENGTH];
 uint8_t WirePort::txBufferIndex = 0;
 uint8_t WirePort::txBufferLength = 0;
+uint8_t WirePort::txError = 0;
 
 uint8_t WirePort::transmitting = 0;
 
@@ -155,19 +163,34 @@ uint8_t WirePort::endTransmission(uint8_t stop)
 {
     DEBUG("[wire] %s: stop %d\n", __func__, stop);
 
-    uint8_t wrote = 0;
-    if (i2c_acquire(ARDUINO_I2C_DEV) == 0 &&
-        i2c_write_bytes(ARDUINO_I2C_DEV, txAddress, txBuffer, txBufferLength,
-                                         stop ? 0 : I2C_NOSTOP) == 0 &&
-        i2c_release(ARDUINO_I2C_DEV) == 0) {
-        wrote = txBufferLength;
+    if (txError) {
+        return txError;
     }
+
+    if (i2c_acquire(ARDUINO_I2C_DEV) != 0) {
+        return WIRE_PORT_ERROR_OTHER;
+    }
+
+    int res = i2c_write_bytes(ARDUINO_I2C_DEV, 
+                              txAddress, txBuffer, txBufferLength,
+                              stop ? 0 : I2C_NOSTOP);
+    switch (res) {
+        case 0: break;
+        case ENXIO: res = WIRE_PORT_ERROR_ADDR_NACK;
+                    break;
+        case EIO: res = WIRE_PORT_ERROR_DATA_NACK;
+                  break;
+        default: res = WIRE_PORT_ERROR_OTHER;
+    }
+
+    i2c_release(ARDUINO_I2C_DEV);
 
     txBufferIndex = 0;
     txBufferLength = 0;
+    txError = 0;
     transmitting = 0;
 
-    return (wrote != 0) ? 0 : 4;
+    return res;
 }
 
 uint8_t WirePort::endTransmission(void)
@@ -180,6 +203,7 @@ size_t WirePort::write(uint8_t data)
     DEBUG("[wire] %s: data %02x\n", __func__, data);
 
     if (!transmitting || txBufferLength >= WIREPORT_BUFFER_LENGTH) {
+        txError = WIRE_PORT_ERROR_DATA_TO_LONG;
         return 0;
     }
 

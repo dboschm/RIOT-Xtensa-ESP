@@ -78,6 +78,7 @@ class WirePort
     static uint8_t txBuffer[];      /**< TX buffer */
     static uint8_t txBufferIndex;   /**< index for TX buffer write */
     static uint8_t txBufferLength;  /**< number of bytes in TX buffer */
+    static uint8_t txError;         /**< error code in write operations */
 
     static uint8_t transmitting;    /**< set by #beginTransmission and reset
                                          by #endTransmission to indicate an
