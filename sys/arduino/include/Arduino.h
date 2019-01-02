@@ -17,9 +17,8 @@
 #ifndef ARDUINO_H
 #define ARDUINO_H
 
-#include "arduino.hpp"
-
 #ifdef __cplusplus
+#include "arduino.hpp"
 extern "C" {
 #endif
 
