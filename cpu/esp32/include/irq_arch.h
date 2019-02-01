@@ -56,6 +56,7 @@ extern volatile uint32_t irq_interrupt_nesting;
  * In non-SDK interrupt handling all stuff is done in _frxt_int_enter
  * and _frxt_int_exit. These macros do nothong and are kept only for source
  * code compatibility.
+ * @{
  */
 #define irq_isr_enter() /* int _irq_state = irq_disable (); \
                            irq_interrupt_nesting++; */
@@ -63,6 +64,7 @@ extern volatile uint32_t irq_interrupt_nesting;
 #define irq_isr_exit()  /* if (irq_interrupt_nesting) \
                                irq_interrupt_nesting--; \
                            irq_restore (_irq_state); */
+/** @} */
 
 /**
  * @brief   Macros to enter and exit from critical region
@@ -72,13 +74,14 @@ extern volatile uint32_t irq_interrupt_nesting;
  */
 #define critical_enter()   int _irq_state = irq_disable ()
 #define critical_exit()    irq_restore(_irq_state)
+/** @} */
 
 /**
  * @brief   Macros to enter and exit from critical region with state variable
+ * @{
  */
 #define critical_enter_var(m)   m = irq_disable ()
 #define critical_exit_var(m)    irq_restore(m)
-
 /** @} */
 
 #ifdef __cplusplus
