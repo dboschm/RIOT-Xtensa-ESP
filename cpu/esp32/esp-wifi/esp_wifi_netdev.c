@@ -220,7 +220,7 @@ static void esp_wifi_setup (esp_wifi_netdev_t* dev)
     esp_err_t result;
 
 #ifndef MODULE_ESP_NOW
-    /* if esp_now is used, the following part is already done */ 
+    /* if esp_now is used, the following part is already done */
     extern portMUX_TYPE g_intr_lock_mux;
     mutex_init(&g_intr_lock_mux);
 

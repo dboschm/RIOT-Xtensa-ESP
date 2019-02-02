@@ -74,7 +74,7 @@
 #endif /* MCU_ESP8266 */
 
 #if MODULE_ESP_WIFI && !ESP_NOW_UNICAST
-#error If module esp_wifi is used, module esp_now has to be used in unicast mode 
+#error If module esp_wifi is used, module esp_now has to be used in unicast mode
 #endif
 
 /**
