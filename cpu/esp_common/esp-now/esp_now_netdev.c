@@ -283,31 +283,6 @@ static esp_err_t IRAM_ATTR _esp_system_event_handler(void *ctx, system_event_t *
     return ESP_OK;
 }
 
-/**
- * Default WiFi configuration, overwrite them with your configs
- */
-#ifndef CONFIG_WIFI_STA_SSID
-#define CONFIG_WIFI_STA_SSID        "RIOT_AP"
-#endif
-#ifndef CONFIG_WIFI_STA_PASSWORD
-#define CONFIG_WIFI_STA_PASSWORD    "ThisistheRIOTporttoESP"
-#endif
-#ifndef CONFIG_WIFI_STA_CHANNEL
-#define CONFIG_WIFI_STA_CHANNEL     0
-#endif
-
-#define CONFIG_WIFI_STA_SCAN_METHOD WIFI_ALL_CHANNEL_SCAN
-#define CONFIG_WIFI_STA_SORT_METHOD WIFI_CONNECT_AP_BY_SIGNAL
-#define CONFIG_WIFI_STA_RSSI        -127
-#define CONFIG_WIFI_STA_AUTHMODE    WIFI_AUTH_WPA_WPA2_PSK
-
-#define CONFIG_WIFI_AP_PASSWORD     ESP_NOW_SOFT_AP_PASSPHRASE
-#define CONFIG_WIFI_AP_CHANNEL      ESP_NOW_CHANNEL
-#define CONFIG_WIFI_AP_AUTH         WIFI_AUTH_WPA_WPA2_PSK
-#define CONFIG_WIFI_AP_HIDDEN       false
-#define CONFIG_WIFI_AP_BEACON       100
-#define CONFIG_WIFI_AP_MAX_CONN     4
-
 extern esp_err_t esp_system_event_add_handler(system_event_cb_t handler,
                                               void *arg);
 
@@ -357,16 +332,14 @@ esp_now_netdev_t *netdev_esp_now_setup(void)
     /* TODO */
 #endif
 
-    /* we use predefined station configuration */
+    /* we use predefined station configuration since it has not to be changed */
     wifi_config_t wifi_config_sta = {
         .sta = {
-            .ssid = CONFIG_WIFI_STA_SSID,
-            .password = CONFIG_WIFI_STA_PASSWORD,
-            .channel = CONFIG_WIFI_STA_CHANNEL,
-            .scan_method = CONFIG_WIFI_STA_SCAN_METHOD,
-            .sort_method = CONFIG_WIFI_STA_SORT_METHOD,
-            .threshold.rssi = CONFIG_WIFI_STA_RSSI,
-            .threshold.authmode = CONFIG_WIFI_STA_AUTHMODE
+            .channel = 0,
+            .scan_method = WIFI_ALL_CHANNEL_SCAN,
+            .sort_method = WIFI_CONNECT_AP_BY_SIGNAL,
+            .threshold.rssi = -127,
+            .threshold.authmode = WIFI_AUTH_WPA_WPA2_PSK
         }
     };
 
@@ -384,10 +357,10 @@ esp_now_netdev_t *netdev_esp_now_setup(void)
     wifi_config_ap.ap.ssid_len = strlen((char*)wifi_config_ap.ap.ssid);
 
     wifi_config_ap.ap.channel = esp_now_params.channel;
-    wifi_config_ap.ap.authmode = CONFIG_WIFI_AP_AUTH;
-    wifi_config_ap.ap.ssid_hidden = CONFIG_WIFI_AP_HIDDEN;
-    wifi_config_ap.ap.max_connection = CONFIG_WIFI_AP_MAX_CONN;
-    wifi_config_ap.ap.beacon_interval = CONFIG_WIFI_AP_BEACON;
+    wifi_config_ap.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
+    wifi_config_ap.ap.ssid_hidden = false;
+    wifi_config_ap.ap.max_connection = 4;
+    wifi_config_ap.ap.beacon_interval = 100;
 
     /* set the WiFi interface to Station + SoftAP mode without DHCP */
     result = esp_wifi_set_mode(WIFI_MODE_STA | WIFI_MODE_AP);
@@ -425,6 +398,41 @@ esp_now_netdev_t *netdev_esp_now_setup(void)
     /* all ESP-NOW nodes get the shared mac address on their station interface */
     esp_wifi_set_mac(ESP_IF_WIFI_STA, (uint8_t*)_esp_now_mac);
 #endif
+
+#else /* MCU_ESP32 */
+
+    int result;
+
+    /* set the WiFi interface to Station + SoftAP mode without DHCP */
+    wifi_set_opmode_current(ESP_NOW_WIFI_STA_SOFTAP);
+    wifi_softap_dhcps_stop();
+
+    /* get SoftAP mac address and store it in device address */
+    wifi_get_macaddr(SOFTAP_IF, dev->addr);
+
+    /* set the SoftAP configuration */
+    struct softap_config ap_conf;
+
+    strcpy((char*)ap_conf.password, esp_now_params.softap_pass);
+    sprintf((char*)ap_conf.ssid, "%s%02x%02x%02x%02x%02x%02x", ESP_NOW_AP_PREFIX,
+            dev->addr[0], dev->addr[1], dev->addr[2],
+            dev->addr[3], dev->addr[4], dev->addr[5]);
+
+    ap_conf.ssid_len = strlen((char*)ap_conf.ssid);
+    ap_conf.channel = esp_now_params.channel; /* support 1 ~ 13 */
+    ap_conf.authmode = AUTH_WPA2_PSK;         /* don't support AUTH_WEP in softAP mode. */
+    ap_conf.ssid_hidden = 0;                  /* default 0 */
+    ap_conf.max_connection = 4;               /* default 4, max 4 */
+    ap_conf.beacon_interval = 100;            /* support 100 ~ 60000 ms, default 100 */
+
+    wifi_softap_set_config_current(&ap_conf);
+
+#if !ESP_NOW_UNICAST
+    /* all ESP-NOW nodes get the shared mac address on their station interface */
+    wifi_set_macaddr(ESP_IF_WIFI_STA, (uint8_t*)_esp_now_mac);
+#endif
+
+#endif /* MCU_ESP32 */
 
     /* set the netdev driver */
     dev->netdev.driver = &_esp_now_driver;
