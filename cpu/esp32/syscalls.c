@@ -60,6 +60,9 @@
 
 #ifdef MODULE_ESP_IDF_HEAP
 #include "heap/esp_heap_caps.h"
+#include "heap/include/multi_heap.h"
+#else
+#include "malloc.h"
 #endif
 
 #define MHZ 1000000UL
@@ -267,6 +270,24 @@ void* IRAM_ATTR _calloc_r(struct _reent *r, size_t count, size_t size)
     return result;
 }
 
+unsigned int IRAM get_free_heap_size (void)
+{
+    return heap_caps_get_free_size( MALLOC_CAP_DEFAULT );
+}
+
+void heap_stats(void)
+{
+    multi_heap_info_t hinfo;
+
+    heap_caps_get_info(&hinfo,  MALLOC_CAP_DEFAULT);
+
+    size_t _free = hinfo.total_free_bytes;
+    size_t _alloc = hinfo.total_allocated_bytes;
+
+    ets_printf("heap: %u (used %u free %u) [bytes]\n",
+               _free + _alloc, _alloc, _free);
+}
+
 #ifndef MODULE_NEWLIB_SYSCALLS_DEFAULT
 /* this should not happen when MODULE_ESP_IDF_HEAP is activated since heap_caps
    doesn't use _sbrk_r to allocate memory blocks */
@@ -298,6 +319,19 @@ void* IRAM heap_caps_realloc( void *ptr, size_t size )
 
 extern uint8_t  _eheap;     /* end of heap (defined in esp32.common.ld) */
 extern uint8_t  _sheap;     /* start of heap (defined in esp32.common.ld) */
+
+unsigned int IRAM get_free_heap_size (void)
+{
+    struct mallinfo minfo = mallinfo();
+    return &_eheap - &_sheap - minfo.uordblks;
+}
+
+void heap_stats(void)
+{
+    ets_printf("heap: %u (used %u free %u)\n",
+               &_eheap - &_sheap, &_eheap - &_sheap - get_free_heap_size(),
+               get_free_heap_size());
+}
 
 #ifdef MODULE_NEWLIB_SYSCALLS_DEFAULT
 
@@ -342,18 +376,8 @@ void* IRAM _sbrk_r (struct _reent *r, ptrdiff_t incr)
 #endif /* MODULE_NEWLIB_SYSCALLS_DEFAULT */
 #endif /* MODULE_ESP_IDF_HEAP */
 
-unsigned int IRAM get_free_heap_size (void)
-{
-    #if MODULE_ESP_IDF_HEAP
-    return heap_caps_get_free_size( MALLOC_CAP_DEFAULT );
-    #else
-    return &_eheap - ((_cheap) ? _cheap : &_sheap);
-    #endif
-}
-
 /* alias for compatibility with espressif/wifi_libs */
 uint32_t esp_get_free_heap_size( void ) __attribute__((alias("get_free_heap_size")));
-
 
 /**
  * @name Other system functions
