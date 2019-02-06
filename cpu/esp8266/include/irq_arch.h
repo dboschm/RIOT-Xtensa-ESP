@@ -50,7 +50,7 @@ extern uint32_t irq_interrupt_nesting;
 /** @} */
 
 /**
- * @bname   Macros to enter and exit a critical region
+ * @name   Macros to enter and exit a critical region
  *
  * @note since they use a local variable they can be used only in same function
  *
