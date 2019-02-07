@@ -453,6 +453,7 @@ static int IRAM _send(netdev_t *netdev, const iolist_t *iolist)
 
     if (res == ERR_OK) {
         /* There was no ieee80211_output_pbuf error and no send timeout. */
+        netdev->event_callback(netdev, NETDEV_EVENT_TX_COMPLETE);
         _in_send = false;
         return iol_len;
     }
