@@ -500,13 +500,16 @@ static int _esp_wifi_send(netdev_t *netdev, const iolist_t *iolist)
 
     /* load packet data into TX buffer */
     for (const iolist_t *iol = iolist; iol; iol = iol->iol_next) {
+        
         if (dev->tx_len + iol->iol_len > ETHERNET_MAX_LEN) {
             _esp_wifi_send_is_in = false;
             critical_exit();
             return -EOVERFLOW;
         }
-        memcpy (dev->tx_buf + dev->tx_len, iol->iol_base, iol->iol_len);
-        dev->tx_len += iol->iol_len;
+        if (iol->iol_len) {
+            memcpy (dev->tx_buf + dev->tx_len, iol->iol_base, iol->iol_len);
+            dev->tx_len += iol->iol_len;
+        }
     }
 
 #if ENABLE_DEBUG
