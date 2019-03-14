@@ -459,7 +459,7 @@ void auto_init_esp_wifi (void)
     _esp_wifi_dev.event = SYSTEM_EVENT_MAX; /* no event */
     _esp_wifi_dev.netif = gnrc_netif_ethernet_create(_esp_wifi_stack,
                                                     ESP_WIFI_STACKSIZE, ESP_WIFI_PRIO,
-                                                    "netdev-esp-wifi",
+                                                    "esp_wifi",
                                                     (netdev_t *)&_esp_wifi_dev);
 }
 

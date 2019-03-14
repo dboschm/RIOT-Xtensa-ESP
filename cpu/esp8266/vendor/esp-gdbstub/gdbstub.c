@@ -9,16 +9,17 @@
 
 #include <string.h>
 
-#include "gdbstub.h"
-#include "ets_sys.h"
 #include "eagle_soc.h"
-#include "c_types.h"
-#include "gpio.h"
+#include "esp_attr.h"
+#include "rom/ets_sys.h"
+#include "sdk/sdk.h"
 #include "xtensa/corebits.h"
 
 #include "gdbstub.h"
 #include "gdbstub-entry.h"
 #include "gdbstub-cfg.h"
+
+#define ets_isr_t   xt_handler
 
 // From xtruntime-frames.h
 struct XTensa_exception_frame_s {
@@ -647,13 +648,31 @@ static void ATTR_GDBFN gdb_exception_handler (void* arg)
 }
 
 #else
-/* TODO
 static void ATTR_GDBFN gdb_exception_handler (XtExcFrame *frame)
 {
     ets_printf("GDB EXCEPTION\n");
-    while (1) ;
+
+    // Save the extra registers the Xtensa HAL doesn't save
+    gdbstub_save_extra_sfrs_for_exception();
+
+    // Copy registers the Xtensa HAL did save to gdbstub_savedRegs
+    ets_memcpy(&gdbstub_savedRegs, frame, 19*4);
+
+    // Credits go to Cesanta for this trick. A1 seems to be destroyed, but because it
+    // has a fixed offset from the address of the passed frame, we can recover it.
+    gdbstub_savedRegs.a1 = (uint32_t)frame + EXCEPTION_GDB_SP_OFFSET;
+
+    gdbstub_savedRegs.reason |= 0x80; //mark as an exception reason
+
+    ets_wdt_disable();
+    sendReason();
+    while (gdbReadCommand() != ST_CONT)
+        ;
+    ets_wdt_enable();
+
+    // Copy any changed registers back to the frame the Xtensa HAL uses.
+    ets_memcpy(frame, &gdbstub_savedRegs, 19*4);
 }
-*/
 #endif // MODULE_ESP_SDK_INT_HANDLING
 
 
@@ -661,7 +680,7 @@ static void ATTR_GDBFN gdb_exception_handler (XtExcFrame *frame)
 // Replacement putchar1 routine. Instead of spitting out the character
 // directly, it will buffer up to OBUFLEN characters (or up to a \n,
 // whichever comes earlier) and send it out as a gdb stdout packet.
-static void ATTR_GDBFN gdb_semihost_putchar1(char c)
+int ets_putc(int c)
 {
     obuf[obufpos++]=c;
     if (c=='\n' || obufpos==OBUFLEN)
@@ -674,6 +693,7 @@ static void ATTR_GDBFN gdb_semihost_putchar1(char c)
         gdbPacketEnd();
         obufpos=0;
     }
+    return c;
 }
 #endif
 
@@ -682,21 +702,19 @@ static void ATTR_GDBFN gdb_semihost_putchar1(char c)
 // happens.
 static void ATTR_GDBINIT install_exceptions(void)
 {
-#ifdef MODULE_ESP_SDK_INT_HANDLING
     unsigned int i;
-    unsigned int exno[]=
-             {
-                 EXCCAUSE_ILLEGAL, EXCCAUSE_SYSCALL,
-                 EXCCAUSE_INSTR_ERROR, EXCCAUSE_LOAD_STORE_ERROR,
-                 EXCCAUSE_DIVIDE_BY_ZERO, EXCCAUSE_UNALIGNED,
-                 EXCCAUSE_INSTR_DATA_ERROR, EXCCAUSE_LOAD_STORE_DATA_ERROR,
-                 EXCCAUSE_INSTR_ADDR_ERROR, EXCCAUSE_LOAD_STORE_ADDR_ERROR,
-                 EXCCAUSE_INSTR_PROHIBITED,    EXCCAUSE_LOAD_PROHIBITED,
-                 EXCCAUSE_STORE_PROHIBITED
-             };
+    unsigned int exno[] = {
+        EXCCAUSE_ILLEGAL, EXCCAUSE_SYSCALL,
+        EXCCAUSE_INSTR_ERROR, EXCCAUSE_LOAD_STORE_ERROR,
+        EXCCAUSE_DIVIDE_BY_ZERO, EXCCAUSE_UNALIGNED,
+        EXCCAUSE_INSTR_DATA_ERROR, EXCCAUSE_LOAD_STORE_DATA_ERROR,
+        EXCCAUSE_INSTR_ADDR_ERROR, EXCCAUSE_LOAD_STORE_ADDR_ERROR,
+        EXCCAUSE_INSTR_PROHIBITED, EXCCAUSE_LOAD_PROHIBITED,
+        EXCCAUSE_STORE_PROHIBITED
+    };
+
     for (i = 0; i < (sizeof(exno)/sizeof(exno[0])); i++)
         _xtos_set_exception_handler(exno[i], gdb_exception_handler);
-#endif
 }
 
 #if GDBSTUB_CTRLC_BREAK
@@ -749,10 +767,6 @@ static void ATTR_GDBINIT install_uart_hdlr(void)
 // gdbstub initialization routine.
 void ATTR_GDBINIT gdbstub_init(void)
 {
-    #if GDBSTUB_REDIRECT_CONSOLE_OUTPUT
-    ets_install_putc1(gdb_semihost_putchar1);
-    #endif
-
     #if GDBSTUB_CTRLC_BREAK
     install_uart_hdlr();
     #endif

@@ -17,6 +17,9 @@
  * @{
  */
 
+/* not required when compiling ESP vendor code parts */
+#ifndef ESP_PLATFORM
+
 #include <stdint.h>
 
 #include "cpu.h"
@@ -140,4 +143,5 @@ void board_print_config (void);
 
 /** @} */
 
+#endif /* ESP_PLATFORM */
 #endif /* BOARD_COMMON_H */

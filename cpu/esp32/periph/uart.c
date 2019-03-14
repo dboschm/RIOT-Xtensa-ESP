@@ -319,7 +319,7 @@ void uart_system_init (void)
 void uart_print_config(void)
 {
     for (unsigned uart = 0; uart < UART_NUMOF; uart++) {
-        ets_printf("\tUART_DEV(%d)\ttxd=%d rxd=%d\n", uart,
+        ets_printf("\tUART_DEV(%d):\ttxd=%d rxd=%d\n", uart,
                    __uarts[uart].pin_txd, __uarts[uart].pin_rxd);
     }
 }

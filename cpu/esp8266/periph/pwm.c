@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -18,7 +18,7 @@
  * @}
  */
 
-#define ENABLE_DEBUG 0
+#define ENABLE_DEBUG (0)
 #include "debug.h"
 
 #include "cpu.h"
@@ -27,21 +27,21 @@
 #include "periph/pwm.h"
 #include "periph/gpio.h"
 
-#include "common.h"
+#include "esp_common.h"
 #include "esp/iomux_regs.h"
 #include "esp/timer_regs.h"
 #include "gpio_common.h"
-#include "sdk/ets.h"
+#include "sdk/sdk.h"
+#include "xtensa/xtensa_api.h"
 
 #if defined(PWM_NUMOF) && PWM_NUMOF > 0
 
 #define TIMER_FRC1_CLKDIV_16    BIT(2)
 #define TIMER_FRC1_CLKDIV_256   BIT(3)
 
-#define ETS_FRC1_INT_ENABLE     ETS_FRC1_INTR_ENABLE
-#define ETS_FRC1_INT_DISABLE    ETS_FRC1_INTR_DISABLE
-#define ETS_FRC1_INT_ATTACH     ETS_FRC_TIMER1_INTR_ATTACH
-#define ETS_FRC1_NMI_ATTACH     ETS_FRC_TIMER1_NMI_INTR_ATTACH
+#define ETS_FRC1_INT_ENABLE()       xt_ints_on(BIT(ETS_FRC_TIMER1_INUM))
+#define ETS_FRC1_INT_DISABLE()      xt_ints_off(BIT(ETS_FRC_TIMER1_INUM))
+#define ETS_FRC1_INT_ATTACH(f, a)   xt_set_interrupt_handler(ETS_FRC_TIMER1_INUM, f, a)
 
 typedef struct
 {
@@ -183,23 +183,31 @@ void pwm_set(pwm_t pwm, uint8_t channel, uint16_t value)
     CHECK_PARAM (value <= _pwm_dev.res);
 
     uint32_t state = irq_disable();
-    uint32_t phase = _pwm_dev.cycles - _pwm_dev.cycles % _pwm_dev.res + _pwm_dev.res;
+    uint32_t phase = _pwm_dev.cycles - _pwm_dev.cycles % _pwm_dev.res;
+    uint32_t next_on = phase;
+    uint32_t next_off;
 
     switch (_pwm_dev.mode) {
         case PWM_LEFT:
-            _pwm_dev.chn[channel].next_on  = phase;
+            next_on = phase;
             break;
 
         case PWM_RIGHT:
-            _pwm_dev.chn[channel].next_on  = phase + _pwm_dev.res - value;
+            next_on = phase + _pwm_dev.res - value;
             break;
 
         case PWM_CENTER:
-            _pwm_dev.chn[channel].next_on  = phase + (_pwm_dev.res - value) / 2;
+            next_on = phase + (_pwm_dev.res - value) / 2;
             break;
     }
 
-    _pwm_dev.chn[channel].next_off = _pwm_dev.chn[channel].next_on + value;
+    next_off = next_on + value;
+
+    next_on = (_pwm_dev.cycles < next_on) ? next_on : next_on + _pwm_dev.res;
+    next_off = (_pwm_dev.cycles < next_off) ? next_off : next_off + _pwm_dev.res;
+
+    _pwm_dev.chn[channel].next_on = next_on;
+    _pwm_dev.chn[channel].next_off = next_off;
     _pwm_dev.chn[channel].duty = value;
 
     irq_restore(state);
@@ -221,18 +229,18 @@ void pwm_poweroff(pwm_t pwm)
 
 void pwm_print_config(void)
 {
-    LOG_INFO("\tPWM_DEV(0): channels=[ ");
+    ets_printf("\tPWM_DEV(0):\tchannels=[ ");
     for (unsigned i = 0; i < sizeof(_pwm_channel_gpios) >> 2; i++) {
-        LOG_INFO("%d ", _pwm_channel_gpios[i]);
+        ets_printf("%d ", _pwm_channel_gpios[i]);
     }
-    LOG_INFO("]\n");
+    ets_printf("]\n");
 }
 
 #else /* defined(PWM_NUMOF) && PWM_NUMOF > 0 */
 
 void pwm_print_config(void)
 {
-    LOG_INFO("\tPWM: no devices\n");
+    ets_printf("\tPWM:\t\tno devices\n");
 }
 
 #endif /* defined(PWM_NUMOF) && PWM_NUMOF > 0 */

@@ -19,6 +19,7 @@
  */
 
 #include "board_common.h"
+#include "esp_common.h"
 #include "log.h"
 #include "periph/gpio.h"
 
@@ -42,6 +43,7 @@ void board_init(void)
     #endif
 }
 
+extern void adc_print_config(void);
 extern void pwm_print_config(void);
 extern void i2c_print_config(void);
 extern void spi_print_config(void);
@@ -50,27 +52,28 @@ extern void timer_print_config(void);
 
 void board_print_config (void)
 {
-    LOG_INFO("\nBoard configuration:\n");
+    ets_printf("\nBoard configuration:\n");
 
+    adc_print_config();
     pwm_print_config();
     i2c_print_config();
     spi_print_config();
     uart_print_config();
     timer_print_config();
 
-    LOG_INFO("\tLED: pins=[ ");
+    ets_printf("\tLED:\t\tpins=[ ");
     #ifdef LED0_PIN
-    LOG_INFO("%d ", LED0_PIN);
+    ets_printf("%d ", LED0_PIN);
     #endif
     #ifdef LED1_PIN
-    LOG_INFO("%d ", LED1_PIN);
+    ets_printf("%d ", LED1_PIN);
     #endif
     #ifdef LED2_PIN
-    LOG_INFO("%d ", LED2_PIN);
+    ets_printf("%d ", LED2_PIN);
     #endif
-    LOG_INFO("]\n");
+    ets_printf("]\n");
 
-    LOG_INFO("\n\n");
+    ets_printf("\n\n");
 }
 
 #ifdef __cplusplus

@@ -23,6 +23,7 @@
 
 #include "net/netdev.h"
 #include "net/gnrc.h"
+#include "esp_common_log.h"
 #include "esp_now_params.h"
 #include "esp_now_netdev.h"
 #include "esp_now_gnrc.h"
@@ -210,7 +211,7 @@ void auto_init_esp_now(void)
     } else {
         gnrc_netif_esp_now_create(_esp_now_stack, sizeof(_esp_now_stack),
                                   ESP_NOW_PRIO,
-                                  "net-esp-now",
+                                  "esp_now",
                                   &esp_now_dev->netdev);
     }
 }

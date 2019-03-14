@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -46,7 +46,7 @@ extern uint32_t irq_interrupt_nesting;
  * @{
  */
 #define irq_isr_enter()
-#define irq_isr_exit() 
+#define irq_isr_exit()
 /** @} */
 
 /**
@@ -59,6 +59,24 @@ extern uint32_t irq_interrupt_nesting;
 #define critical_enter()   int _irq_state = irq_disable ()
 #define critical_exit()    irq_restore(_irq_state)
 /** @} */
+
+/**
+ * @name   Macros to enter and exit a critical region with state variable
+ * @{
+ */
+#define critical_enter_var(m)   m = irq_disable()
+#define critical_exit_var(m)    irq_restore(m)
+/** @} */
+
+/**
+ * @name    Software interrupt types
+ *
+ * These definitions are used to distinguish different types of software
+ * interrupts in software interrupt handler.
+ */
+#define ETS_SOFT_INT_NONE       0
+#define ETS_SOFT_INT_YIELD      1
+#define ETS_SOFT_INT_HDL_MAC    2
 
 #ifdef __cplusplus
 }

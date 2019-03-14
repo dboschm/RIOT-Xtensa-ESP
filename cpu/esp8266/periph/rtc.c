@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -26,15 +26,9 @@
 #include "log.h"
 #include "periph/rtc.h"
 
-#include "common.h"
+#include "esp_common.h"
 
-#include "sdk/ets.h"
-
-void rtc_init(void)
-{
-    /* TODO implement */
-    NOT_YET_IMPLEMENTED();
-}
+#include "sdk/sdk.h"
 
 void rtc_poweron(void)
 {

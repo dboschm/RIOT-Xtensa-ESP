@@ -39,7 +39,7 @@ will show up in your gdb session, which is useful if you use gdb to do stuff. It
 you use a normal terminal, you can't read the printfs anymore.
 */
 #ifndef GDBSTUB_REDIRECT_CONSOLE_OUTPUT
-#define GDBSTUB_REDIRECT_CONSOLE_OUTPUT 1
+#define GDBSTUB_REDIRECT_CONSOLE_OUTPUT 0
 #endif
 
 /*

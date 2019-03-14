@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -41,7 +41,7 @@
 #include "periph/gpio.h"
 #include "periph/i2c.h"
 
-#include "common.h"
+#include "esp_common.h"
 
 #include "esp/gpio_regs.h"
 #include "sdk/ets.h"
@@ -736,8 +736,8 @@ static /* IRAM */ int _i2c_read_byte(_i2c_bus_t* bus, uint8_t *byte, bool ack)
 void i2c_print_config(void)
 {
     for (unsigned bus = 0; bus < I2C_NUMOF; bus++) {
-        LOG_INFO("\tI2C_DEV(%d): scl=%d sda=%d\n",
-                 bus, _i2c_bus[bus].scl, _i2c_bus[bus].sda);
+        ets_printf("\tI2C_DEV(%d):\tscl=%d sda=%d\n",
+                   bus, _i2c_bus[bus].scl, _i2c_bus[bus].sda);
     }
 }
 
@@ -745,7 +745,7 @@ void i2c_print_config(void)
 
 void i2c_print_config(void)
 {
-    LOG_INFO("\tI2C: no devices\n");
+    ets_printf("\tI2C:\tno devices\n");
 }
 
 #endif /* if defined(I2C_NUMOF) && I2C_NUMOF */

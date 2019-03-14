@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -26,16 +26,16 @@
 #include "log.h"
 #include "periph/gpio.h"    /* RIOT gpio.h */
 
-#include "c_types.h"
-#include "eagle_soc.h"
-#include "ets_sys.h"
+#include "esp8266/eagle_soc.h"
+#include "esp8266/gpio_register.h"
+#include "rom/ets_sys.h"
 
 #include "sdk/ets.h"
 #include "esp/gpio_regs.h"
 #include "esp/iomux_regs.h"
 #include "esp/rtc_regs.h"
 
-#include "common.h"
+#include "esp_common.h"
 #include "gpio_common.h"
 #include "irq_arch.h"
 #include "syscalls.h"

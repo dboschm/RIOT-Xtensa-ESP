@@ -117,9 +117,13 @@ esp_err_t esp_event_loop_init(system_event_cb_t cb, void *ctx)
     s_event_ctx = ctx;
     s_event_queue = xQueueCreate(CONFIG_SYSTEM_EVENT_QUEUE_SIZE, sizeof(system_event_t));
 
+#ifdef RIOT_VERSION
+    xTaskCreatePinnedToCore(esp_event_loop_task, "esp_events",
+            ESP_TASKD_EVENT_STACK, NULL, ESP_TASKD_EVENT_PRIO, NULL, 0);
+#else
     xTaskCreatePinnedToCore(esp_event_loop_task, "wifi-event-loop",
             ESP_TASKD_EVENT_STACK, NULL, ESP_TASKD_EVENT_PRIO, NULL, 0);
-
+#endif
     s_event_init_flag = true;
     return ESP_OK;
 }

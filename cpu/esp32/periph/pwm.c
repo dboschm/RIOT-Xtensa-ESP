@@ -453,7 +453,7 @@ void pwm_print_config(void)
 
 void pwm_print_config(void)
 {
-    LOG_TAG_INFO("pwm", "no PWM devices\n");
+    ets_printf("\tPWM:\tno devices\n");
 }
 
 #endif /* defined(PWM0_GPIOS) || defined(PWM1_GPIOS) */

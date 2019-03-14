@@ -861,7 +861,7 @@ void i2c_print_config(void)
 
 void i2c_print_config(void)
 {
-    LOG_TAG_INFO("i2c", "no I2C devices\n");
+    ets_printf("\tI2C:\tno devices\n");
 }
 
 #endif /* defined(I2C0_SPEED) || defined(I2C1_SPEED) */

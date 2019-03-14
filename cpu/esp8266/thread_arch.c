@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -58,12 +58,14 @@
 #include "thread.h"
 #include "sched.h"
 
-#include "common.h"
+#include "esp_common.h"
 #include "esp/common_macros.h"
 #include "esp/xtensa_ops.h"
-#include "sdk/ets_task.h"
-#include "sdk/rom.h"
+#include "esp8266/rom_functions.h"
+#include "irq_arch.h"
+#include "rom/ets_sys.h"
 #include "sdk/sdk.h"
+#include "syscalls.h"
 #include "tools.h"
 #include "xtensa/xtensa_context.h"
 
@@ -130,14 +132,14 @@ char* thread_stack_init(thread_task_func_t task_func, void *arg, void *stack_sta
 
     /* Clear whole stack with a known value to assist debugging */
     #if !defined(DEVELHELP) && !defined(SCHED_TEST_STACK)
-        /* Unfortunatly, this affects thread_measure_stack_free function */
-        memset(stack_start, 0, stack_size);
+    /* Unfortunatly, this affects thread_measure_stack_free function */
+    memset(stack_start, 0, stack_size);
     #endif
 
     /* BEGIN - code from FreeRTOS port for Xtensa from Cadence */
 
     /* Create interrupt stack frame aligned to 16 byte boundary */
-    sp = (uint8_t*)(((uint32_t)(top_of_stack+1) - XT_STK_FRMSZ - XT_CP_SIZE) & ~0xf);
+    sp = (uint8_t*)(((uint32_t)(top_of_stack + 1) - XT_STK_FRMSZ - XT_CP_SIZE) & ~0xf);
 
     /* ensure that stack is big enough */
     assert (sp > (uint8_t*)stack_start);
@@ -174,7 +176,7 @@ char* thread_stack_init(thread_task_func_t task_func, void *arg, void *stack_sta
      */
     uint32_t *p;
 
-    p = (uint32_t *)(((uint32_t) pxTopOfStack - XT_CP_SIZE) & ~0xf);
+    p = (uint32_t *)(((uint32_t)(pxTopOfStack + 1) - XT_CP_SIZE) & ~0xf);
     p[0] = 0;
     p[1] = 0;
     p[2] = (((uint32_t) p) + 12 + XCHAL_TOTAL_SA_ALIGN - 1) & -XCHAL_TOTAL_SA_ALIGN;
@@ -188,41 +190,60 @@ char* thread_stack_init(thread_task_func_t task_func, void *arg, void *stack_sta
     return (char*)sp;
 }
 
-
-unsigned sched_interrupt_nesting = 0;  /* Interrupt nesting level */
-
-#ifdef CONTEXT_SWITCH_BY_INT
 /**
- * Context switches are realized using software interrupts
+ * Context switches are realized using software interrupts since interrupt
+ * entry and exit functions are the only way to save and restore complete
+ * context including spilling the register windows to the stack
  */
-void IRAM thread_yield_isr(void* arg)
-{
-    /* set the context switch flag (indicates that context has to be switched
-       is switch on exit from interrupt in _frxt_int_exit */
-    _frxt_setup_switch();
-}
+
+#ifdef MCU_ESP8266
+extern int MacIsrSigPostDefHdl(void);
+unsigned int ets_soft_int_type = ETS_SOFT_INT_NONE;
 #endif
 
-void  thread_yield_higher(void)
+void IRAM thread_yield_isr(void* arg)
+{
+#ifdef MCU_ESP8266
+    ETS_NMI_LOCK();
+
+    if (ets_soft_int_type == ETS_SOFT_INT_HDL_MAC) {
+        ets_soft_int_type = MacIsrSigPostDefHdl() ? ETS_SOFT_INT_YIELD
+                                                  : ETS_SOFT_INT_NONE;
+    }
+
+    if (ets_soft_int_type == ETS_SOFT_INT_YIELD) {
+        /*
+         * set the context switch flag (indicates that context has to be
+         * switched on exit from interrupt in _frxt_int_exit
+         */
+        ets_soft_int_type = ETS_SOFT_INT_NONE;
+        _frxt_setup_switch();
+    }
+
+    ETS_NMI_UNLOCK();
+#else
+    _frxt_setup_switch();
+#endif
+}
+
+void IRAM thread_yield_higher(void)
 {
     /* reset hardware watchdog */
-    system_soft_wdt_feed();
+    system_wdt_feed();
 
     /* yield next task */
     #if defined(ENABLE_DEBUG) && defined(DEVELHELP)
     if (sched_active_thread) {
-        DEBUG("%u old task %u %s %u\n", phy_get_mactime(),
+        DEBUG("%u old task %u %s %u\n", system_get_time(),
                sched_active_thread->pid, sched_active_thread->name,
                sched_active_thread->sp - sched_active_thread-> stack_start);
     }
     #endif
-
     if (!irq_is_in()) {
-        #ifdef CONTEXT_SWITCH_BY_INT
+        critical_enter();
+        ets_soft_int_type = ETS_SOFT_INT_YIELD;
         WSR(BIT(ETS_SOFT_INUM), interrupt);
-        #else
-        vPortYield();
-        #endif
+        critical_exit();
     }
     else {
         _frxt_setup_switch();
@@ -230,11 +251,18 @@ void  thread_yield_higher(void)
 
     #if defined(ENABLE_DEBUG) && defined(DEVELHELP)
     if (sched_active_thread) {
-        DEBUG("%u new task %u %s %u\n", phy_get_mactime(),
+        DEBUG("%u new task %u %s %u\n", system_get_time(),
                sched_active_thread->pid, sched_active_thread->name,
                sched_active_thread->sp - sched_active_thread-> stack_start);
     }
     #endif
+
+    /*
+     * Instruction fetch synchronize: Waits for all previously fetched load,
+     * store, cache, and special register write instructions that affect
+     * instruction fetch to be performed before fetching the next instruction.
+     */
+    __asm__("isync");
 
     return;
 }
@@ -273,9 +301,10 @@ extern uint8_t port_IntStackTop;
 void thread_isr_stack_init(void)
 {
     /* code from thread.c, please see the copyright notice there */
+    register uint32_t *sp __asm__ ("a1");
 
     /* assign each int of the stack the value of it's address */
-    uintptr_t *stackmax = (uintptr_t *)&port_IntStackTop;
+    uintptr_t *stackmax = (uintptr_t *)sp;
     uintptr_t *stackp = (uintptr_t *)&port_IntStack;
 
     while (stackp < stackmax) {
@@ -316,6 +345,8 @@ void thread_isr_stack_init(void) {}
 
 NORETURN void cpu_switch_context_exit(void)
 {
+    DEBUG("%s\n", __func__);
+
     /* Switch context to the highest priority ready task without context save */
     _frxt_dispatch();
 

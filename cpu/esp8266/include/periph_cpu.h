@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -45,19 +45,9 @@ extern "C" {
 /** @} */
 
 /**
- * @brief   Definition of a fitting UNDEF value
- */
-#define GPIO_UNDEF (GPIO_ID_NONE)
-
-/**
- * @brief   Define CPU specific GPIO pin generator macro
- */
-#define GPIO_PIN(x, y)  ((x << 4) | y)
-
-/**
  * @brief   Define CPU specific number of GPIO pins
  */
-#define GPIO_PIN_NUMOF  GPIO_PIN_COUNT+1
+#define GPIO_PIN_NUMOF  (17)
 
 /**
  * @name   Predefined GPIO names

@@ -13,12 +13,12 @@
 #include <xtensa/config/core-isa.h>
 #include <xtensa/corebits.h>
 
-#define DEBUG_PC	(EPC + XCHAL_DEBUGLEVEL)
+#define DEBUG_PC	    (EPC + XCHAL_DEBUGLEVEL)
 #define DEBUG_EXCSAVE	(EXCSAVE + XCHAL_DEBUGLEVEL)
-#define DEBUG_PS	(EPS + XCHAL_DEBUGLEVEL)
-
+#define DEBUG_PS	    (EPS + XCHAL_DEBUGLEVEL)
 
 .global gdbstub_savedRegs
+.global gdbstub_debug_exception_entry
 
 #if GDBSTUB_USE_OWN_STACK
 .global gdbstub_exceptionStack
@@ -279,17 +279,19 @@ gdbstub_save_extra_sfrs_for_exception:
 	.global gdbstub_init_debug_entry
 	.global _DebugExceptionVector
 	.align	4
+/*
+ *  This puts the following 2 instructions into the debug exception vector:
+ *	    xsr	a2, DEBUG_EXCSAVE
+ *	    jx	a2
+ */
 gdbstub_init_debug_entry:
-//This puts the following 2 instructions into the debug exception vector:
-//	xsr	a2, DEBUG_EXCSAVE
-//	jx	a2
 	movi	a2, _DebugExceptionVector
 	movi	a3, 0xa061d220
 	s32i	a3, a2, 0
 	movi	a3, 0x00000002
 	s32i	a3, a2, 4
 
-//Tell the just-installed debug vector where to go.
+    /* Tell the just-installed debug vector where to go. */
 	movi	a2, gdbstub_debug_exception_entry
 	wsr		a2, DEBUG_EXCSAVE
 

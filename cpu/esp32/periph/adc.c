@@ -631,7 +631,8 @@ int rtcio_config_sleep_mode (gpio_t pin, bool mode, bool input)
     return 0;
 }
 
-void adc_print_config(void) {
+void adc_print_config(void)
+{
     ets_printf("\tADC\t\tpins=[ ");
     #if defined(ADC_GPIOS)
     for (unsigned i = 0; i < adc_chn_num; i++) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gunar Schorcht
+ * Copyright (C) 2019 Gunar Schorcht
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -21,7 +21,7 @@
 
 #define ENABLE_DEBUG (0)
 #include "debug.h"
-#include "common.h"
+#include "esp_common.h"
 #include "log.h"
 
 #if defined(MODULE_PERIPH_SPI)
@@ -32,6 +32,7 @@
 #include "mutex.h"
 #include "periph/spi.h"
 
+#include "esp_common.h"
 #include "esp/iomux_regs.h"
 #include "esp/spi_regs.h"
 
@@ -399,18 +400,18 @@ void spi_transfer_bytes(spi_t bus, spi_cs_t cs, bool cont,
 
 void spi_print_config(void)
 {
-    LOG_INFO("\tSPI_DEV(0): ");
-    LOG_INFO("sck=%d " , SPI0_SCK_GPIO);
-    LOG_INFO("miso=%d ", SPI0_MISO_GPIO);
-    LOG_INFO("mosi=%d ", SPI0_MOSI_GPIO);
-    LOG_INFO("cs=%d\n" , SPI0_CS0_GPIO);
+    ets_printf("\tSPI_DEV(0):\t\t");
+    ets_printf("sck=%d " , SPI0_SCK_GPIO);
+    ets_printf("miso=%d ", SPI0_MISO_GPIO);
+    ets_printf("mosi=%d ", SPI0_MOSI_GPIO);
+    ets_printf("cs=%d\n" , SPI0_CS0_GPIO);
 }
 
 #else /* MODULE_PERIPH_SPI */
 
 void spi_print_config(void)
 {
-    LOG_INFO("\tSPI: no devices\n");
+    ets_printf("\tSPI:\t\tno devices\n");
 }
 
 #endif /* MODULE_PERIPH_SPI */
