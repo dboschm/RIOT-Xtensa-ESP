@@ -6,7 +6,8 @@ BOARD_INSUFFICIENT_MEMORY := arduino-duemilanove arduino-uno \
                              nucleo-f031k6 nucleo-f042k6 nucleo-l031k6
 
 BOARD_BLACKLIST := msb-430 msb-430h pic32-clicker pic32-wifire \
-                   telosb wsn430-v1_3b wsn430-v1_4 z1
+                   telosb wsn430-v1_3b wsn430-v1_4 z1 \
+                   esp8266-esp-12x esp8266-olimex-mod esp8266-sparkfun-thing
 
 LORA_DRIVER ?= sx1276
 LORA_REGION ?= EU868

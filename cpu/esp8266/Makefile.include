@@ -27,7 +27,6 @@ ifneq (, $(filter esp_now esp_wifi, $(USEMODULE)))
 endif
 
 ifneq (, $(filter esp_gdbstub, $(USEMODULE)))
-    $(error PLEASE NOTE: integration of GDBSTUB is still in progress and does not yet work)
     USEMODULE += esp_gdb
 endif
 
@@ -93,7 +92,7 @@ ASFLAGS += --longcalls --text-section-literals
 
 ifneq (, $(filter esp_gdbstub, $(USEMODULE)))
     GDBSTUB_DIR ?= $(RIOTCPU)/$(CPU)/vendor/esp-gdbstub
-    CFLAGS      += -DGDBSTUB_FREERTOS=0 -DGDBSTUB_BREAK_ON_INIT=0
+    CFLAGS      += -DGDBSTUB_BREAK_ON_INIT=1
     INCLUDES    += -I$(GDBSTUB_DIR)
 endif
 

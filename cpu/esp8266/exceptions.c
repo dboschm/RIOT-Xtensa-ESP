@@ -81,14 +81,6 @@ static const char* exception_names [] =
     "Coprocessor7Disabled",        /* 39 */
 };
 
-const char *reg_names[] = {
-    "pc      ", "ps      ",
-    "a0      ", "a1      ", "a2      ", "a3      ", "a4      ", "a5      ",
-    "a6      ", "a7      ", "a8      ", "a9      ", "a10     ", "a11     ",
-    "a12     ", "a13     ", "a14     ", "A15     ", "SAR     ",
-    "exccause", "excvaddr", "lbeg    ", "lend    ", "lcount  "
-};
-
 void IRAM NORETURN exception_handler (XtExcFrame *frame)
 {
     uint32_t excsave1;
@@ -159,10 +151,12 @@ void IRAM NORETURN exception_handler (XtExcFrame *frame)
     /* TODO: Improvement
        Normally, we should try to restart the system. However, this
        will not work after some exceptions, e.g., the LoadStoreErrorCause.
-       Therefore, we break the execution and wait for the WDT reset. Maybe
-       there is better way. If debugger is active, 'break 0,0' stops
+       One option is to break the execution and wait for the WDT reset. Maybe
+       there is better way. If debugger is active, 'break 0,0' stops the
        execution in debugger. */
-    __asm__ volatile ("break 0,0");
+    /* __asm__ volatile ("break 0,0"); */
+    /* hard reset */
+    __asm__ volatile (" call0 0x40000080 ");
 
     UNREACHABLE();
 }

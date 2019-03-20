@@ -39,7 +39,9 @@
 10. [SDK Specific Information](#esp8266_sdk_specifics)
     1. [Tasks](#esp8266_sdk_tasks)
     2. [Heap](#esp8266_esp_idf_heap_implementation)
-11. [QEMU Mode and GDB](#esp8266_qemu_mode_and_gdb)
+11. [Debugging](#esp8266_debugging)
+    1. [QEMU Mode and GDB](#esp8266_qemu_mode_and_gdb)
+    2. [Module esp_gdbstub](#esp8266_esp_gdbstub)
 
 # <a name="esp8266_overview"> Overview </a> &nbsp;&nbsp; [[TOC](#esp8266_toc)]
 
@@ -97,9 +99,10 @@ The following table gives a short reference  in alphabetical order of modules th
 Module    | Default  | Short description
 ----------|----------|-------------------
 [esp_gdb](#esp8266_qemu_mode_and_gdb) | not used | enable the compilation with debug information for debugging
+[esp_gdbstub](#esp8266_esp_gdbstub) | not used | enable the compilation of the `gdbstub` interface
 [esp_idf_heap](#esp8266_esp_idf_heap_implementation) | not used | use SDK heap implementation
 [esp_now](#esp8266_esp_now_network_interface) | not used  | enable the ESP-NOW network device
-[esp_qemu](#esp8266_qemu_mode_and_gdb) | not used  | generate image for QEMU
+[esp_qemu](#esp8266_qemu_mode_and_gdb) | not used  | generate image for `QEMU`
 [esp_spiffs](#esp8266_spiffs_device) | not used  |  enable SPIFFS for on-board flash memory
 [esp_wifi](#esp8266_wifi_network_interface) | not used  | enable the Wifi network device
 
@@ -348,10 +351,11 @@ The compilation process can be controlled by a number of variables for the make 
 
 Option | Values | Default | Description
 -------|--------|---------|------------
-ENABLE_GDB | 0, 1 | 0 | Enable compilation with debug information for debugging with QEMU (`QEMU=1`), see section [QEMU Mode and GDB](#esp8266_qemu_mode_and_gdb)
+ENABLE_GDB | 0, 1 | 0 | Enable compilation with debug information for debugging, see section [QEMU Mode and GDB](#esp8266_qemu_mode_and_gdb)
+ENABLE_GDBSTUB | 0, 1 | 0 | Enable compilation of `gdbstub` interface for debugging, see section [Module esp_gdbstub](#esp8266_esp_gdbstub)
 FLASH_MODE | dout, dio, qout, qio | dout | Set the flash mode, please take care with your module, see section [Flash Modes](#esp8266_flash_modes)
-PORT | /dev/ttyUSBx | /dev/* | Set the USB port for flashing the firmware
-QEMU | 0, 1 | 0 | Generate an image for QEMU, see section [QEMU Mode and GDB](#esp8266_qemu_mode_and_gdb)
+QEMU | 0, 1 | 0 | Generate an image for `QEMU`, see section [QEMU Mode and GDB](#esp8266_qemu_mode_and_gdb)
+PORT | /dev/<port> | /dev/USB0 | Set the USB port for flashing the firmware
 
 </center><br>
 
@@ -362,9 +366,10 @@ Optional features of ESP8266 can be enabled by `USEMODULE` definitions in the ma
 Module | Description
 -------|------------
 [esp_gdb](#esp8266_qemu_mode_and_gdb) | Enable the compilation with debug information, which is equivalent to using `ENABLE_GDB=1`
+[esp_gdbstub](#esp8266_esp_gdbstub) | Enable the compilation of the `gdbstub` interface, which is equivalent to using `ENABLE_GDBSTUB=1`
 [esp_idf_heap](#esp8266_esp_idf_heap_implementation) | Enable SDK heap implementation which provides remaining IRAM as additional heap region
 [esp_now](#esp8266_esp_now_network_interface) | Enable the built-in WiFi module with the ESP-NOW protocol as `netdev` network device
-[esp_qemu](#esp8266_qemu_mode_and_gdb) | Enable the compilation of an QEMU image for debugging, which is equivalent to using `QEMU=1`
+[esp_qemu](#esp8266_qemu_mode_and_gdb) | Enable the compilation of an `QEMU` image for debugging, which is equivalent to using `QEMU=1`
 [esp_spiffs](#esp8266_spiffs_device) | Enable the SPIFFS drive in on-board flash memory
 [esp_sw_timer](#esp8266_timers) | Enable software timer implementation
 [esp_wifi](#esp8266_wifi_network_interface) | Use the built-in WiFi module as `netdev` network device
@@ -807,10 +812,10 @@ hardware. These threads are also created, if the WiFi hardware is not used.
 ```
 	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current
 	  - | isr_stack            | -        - |   - |   2048 (  832) | 0x3ffe8420 | 0x3ffe8c20
-	  1 | ppT                  | bl rx    _ |   2 |   3632 ( 1296) | 0x3fff5df0 | 0x3fff6ac0 
-	  2 | pmT                  | bl rx    _ |   4 |   1072 (  320) | 0x3fff6c70 | 0x3fff6f70 
-	  3 | rtT                  | bl rx    _ |   3 |   2096 ( 1376) | 0x3fff70b0 | 0x3fff77b0 
-	  4 | esp_events           | bl rx    _ |   5 |   2096 (  864) | 0x3fff7f20 | 0x3fff8600 
+	  1 | ppT                  | bl rx    _ |   2 |   3632 ( 1296) | 0x3fff5df0 | 0x3fff6ac0
+	  2 | pmT                  | bl rx    _ |   4 |   1072 (  320) | 0x3fff6c70 | 0x3fff6f70
+	  3 | rtT                  | bl rx    _ |   3 |   2096 ( 1376) | 0x3fff70b0 | 0x3fff77b0
+	  4 | esp_events           | bl rx    _ |   5 |   2096 (  864) | 0x3fff7f20 | 0x3fff8600
 ```
 
 ## <a name="esp8266_esp_idf_heap_implementation"> SDK Heap Implementation </a> &nbsp;[[TOC](#esp8266_toc)]
@@ -837,17 +842,38 @@ functions of `newlibc` use always heap region 1 in DRAM, functions of
 binary SDK libraries like the WiFi stack can also also heap region 0
 for 32-bit aligned data.
 
-# <a name="esp8266_qemu_mode_and_gdb"> QEMU Mode and GDB </a> &nbsp;[[TOC](#esp8266_toc)]
+# <a name="esp8266_debugging"> Debugging </a> &nbsp;[[TOC](#esp8266_toc)]
 
-When QEMU mode is enabled (`QEMU=1`), instead of loading the image to the
-target hardware, a binary image `$ELFFILE.bin` is created in the target
-directory. This binary image file can be used together with QEMU to debug
-the code in GDB.
+There are two options to debug your RIOT application for ESP8266 either
 
-The binary image can be compiled with debugging information (`ENABLE_GDB=1` or
-module `esp_gdb`) or optimized without debugging information (`ENABLE_GDB=0`). The latter one is the default. The version with debugging information can be debugged in source code while the optimized version can only be debugged in assembler mode.
+- using `QEMU` and module `esp_gdb`, see [QEMU Mode andB](#esp8266_qemu_mode_and_gdb) or
+- using module `esp_gdbstub`, see [Module esp_gdbstub](#esp8266_esp_gdbstub).
 
-To use QEMU, you have to install QEMU for Xtensa with ESP8266 machine implementation as following.
+## <a name="esp8266_qemu_mode_and_gdb"> QEMU Mode and GDB </a> &nbsp;[[TOC](#esp8266_toc)]
+
+### Compilation for `QEMU`
+
+When `QEMU` mode is enabled (`QEMU=1`), `make flash` does
+not try to download the image of your RIOT application to the target hardware.
+Instead, a binary image `$ELFFILE.bin` is created in the target directory.
+This binary image can be used together with `QEMU` and `GDB` to debug the
+application.
+
+For debugging purposes, the application should be compiled with debugging
+information. This can either be done using the make command variable
+`ENABLE_GDB=1`, e.g.
+```
+make flash BOARD=esp8266-esp-12x -C tests/shell ENABLE_GDB=1
+```
+or using the `esp_gdb` module, e.g.
+```
+USEMODULE=esp_gdb make flash BOARD=esp8266-esp-12x -C tests/shell
+```
+
+### Installation of `QEMU`
+
+To use `QEMU`, you have to install `QEMU` for Xtensa with ESP8266 machine
+implementation first as following.
 
 ```
 cd /my/source/dir
@@ -860,26 +886,147 @@ make
 make install
 ```
 
-Once the compilation has been finished, QEMU for Xtensa with ESP8266 machine implementation should be available in `/path/to/esp/qemu/bin` and you can start it with
+### Start Debugging with `QEMU`
+
+Once the compilation has been finished, `QEMU` for Xtensa with ESP8266
+machine implementation should be available in `/path/to/esp/qemu/bin` and
+you can start it in first terminal with
 
 ```
-$QEMU/bin/qemu-system-xtensa -M esp8266 -nographic -serial stdio -monitor none -s -S -kernel /path/to/the/target/image.elf.bin
+term1> $QEMU/bin/qemu-system-xtensa -M esp8266 -nographic -serial stdio -monitor none -s -S \
+                                    -kernel /path/to/the/target/image.elf.bin
 ```
 
-where `/path/to/the/target/image.elf.bin` is the path to the binary image as generated by the `make` command as `$ELFFILE.bin`. After that you can start GDB in another terminal window using command:
+where `/path/to/the/target/image.elf.bin` is the path to the binary image
+`$ELFFILE.bin` as generated by the `make` command. After that you can
+start `GDB` in second terminal window using command:
 
 ```
-xtensa-lx106-elf-gdb
+term2> xtensa-lx106-elf-gdb /path/to/the/target/image.elf
 ```
 
-If you have compiled your binary image with debugging information, you can load the ELF file in gdb with:
-
-```
-(gdb) file /path/to/the/target/image.elf
-```
-
-To start debugging, you have to connect to QEMU with command:
+To start debugging, you have to connect to `QEMU` from `GDB` with command:
 ```
 (gdb) target remote :1234
 ```
-*/
+
+@note: `QEMU` does not support the emulation of hardware interrupts or
+special hardware modules like the WiFi module. Applications that rely on
+interrupts or the WiFi interface can only be debugged with restrictions
+with `QEMU` and `GDB`.
+
+## <a name="esp8266_esp_gdbstub"> Module `esp_gdbstub` </a> &nbsp;[[TOC](#esp8266_toc)]
+
+### Compilation with `esp_gdbstub`
+
+Using the `esp_gdbstub` module or the make command variable `ENABLE_GDBSTUB=1`
+enables the compilation of the `gdbstub` interface for ESP8266. This
+interface implements the target side of the
+[GDB Remote Protocol](https://sourceware.org/gdb/onlinedocs/gdb/Remote-Protocol.html#Remote-Protocol).
+The initial `gdbstub` implementation for ESP8266 was provided by
+[Espressif](https://github.com/espressif/esp-gdbstub). However, for using it
+with RIOT it had to be changed a lot.
+
+@note Enabling the `gdbstub` interface automatically enables the compilation
+with debug information (module `esp_gdb` or `ENABLE_GDB=1`) `gdbstub`.
+
+### Start Debugging with `esp_gdbstub`
+
+To start debugging, the application has to be compiled either using
+module `esp_gdbstub`, e.g,
+```
+USEMODULE=esp_gdbstub make flash BOARD=esp8266-esp-12x -C tests/shell
+```
+or using the make command variable `ENABLE_GDB=1`, e.g.
+```
+make flash BOARD=esp8266-esp-12x -C tests/shell ENABLE_GDBSTUB=1
+```
+Once, the application is flashed to ESP82666, debugging can be started as
+following.
+
+1. Start in first terminal window a terminal program which connects to the
+port of the ESP8266 module as console window:
+```
+term1> python -m serial.tools.miniterm <port> 115200
+```
+where `<port>` is the serial interface to which the ESP8266 module is connected,
+e.g., `/dev/ttyUSB0`.
+
+2. Start GDB with the application in a second terminal window:
+```
+term2> xtensa-lx106-elf-gdb /path/to/the/target/image.elf
+```
+where `/path/to/the/target/image.elf` is the path to the application.
+
+3. Connect from `GDB` to the ESP8266 module with command:
+```
+(gdb) target remote <port>
+```
+where `<port>` is the serial interface to which the ESP8266 module is connected,
+e.g., `/dev/ttyUSB0`.
+
+By default, `gdbstub` stops the execution automatically using function
+`gdbstub_do_break` after the board initialization and before the kernel
+is initialized.
+
+```
+(gdb) tar rem /dev/ttyUSB0
+Remote debugging using /dev/ttyUSB0
+gdbstub_do_break_breakpoint_addr () at cpu/esp8266/vendor/esp-gdbstub/gdbstub-entry.S:400
+400	    break 0,0
+(gdb) bt
+#0  gdbstub_do_break_breakpoint_addr () at cpu/esp8266/vendor/esp-gdbstub/gdbstub-entry.S:400
+#1  0x40100f89 in gdbstub_init () at cpu/esp8266/vendor/esp-gdbstub/gdbstub.c:985
+```
+At this time, you can set breakpoints, execute
+the application stepwise or just continue the execution using the `continue`
+command. Please note the limitations below. Once you have started the execution
+in `GDB`, you can use `Ctrl-C` in `GDB` or the console window to break it anytime.
+
+If your application uses console inputs (stdio), such as the `tests/shell`
+application, you can type characters in the console window that gdbstub will
+forward to the application. However, the echo of these inputs occur in `GDB`.
+
+@note Since the terminal program and `GDB` are using the same serial port,
+typed characters can be lost sporadically.
+
+When you reset the ESP8266 module, you will observe a message such as the
+following after boot messages in the console window.
+```
+$T05#b9
+```
+This is simply the first GDB Remote Protocol packet that is generated as a
+result of the automatic break during the initialization when the GDB is not
+yet connected to the ESP8266 module.
+
+### Limitations of `esp_gdbstub`
+
+Due to hardware limitations of the Xtensa architecture, `esp_gdbstub`
+debugging has the following limitations:
+
+- Software breakpoints (command `br`) only work for code in IRAM starting at address `0x40100000`, see below.
+- Code in IROM (flash) starting at address `0x40210000` require a hardware breakpoint (command `hbr`), see below.
+- There is only one hardware breakpoint (command `hbr`).
+- There is only one hardware watchpoint (command `watch`).
+- Stepwise execution on source code level is only possible in IRAM starting at address `0x40100000`, see below.
+
+If you want to use multiple software breakpoints or execute stepwise on
+source code level, you have to ensure that the function you want to debug is
+located in RAM. For that purpose, add the `IRAM` attribute to that function,
+for example:
+
+```
+#include "esp/common_macros.h"
+...
+voir IRAM my_func(void)
+{
+    ...
+}
+```
+
+Then you should be able to set a breakpoint to this function using command `bp`
+and to execute it stepwise after break.
+
+Another option is to use `gdbstub_do_break()` wherever you want to break the
+execution. If you know where you want to break before downloading the program
+to the target, you can use `gdbstub_do_break()` as much as you want.

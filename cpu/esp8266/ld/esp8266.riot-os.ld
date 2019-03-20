@@ -176,35 +176,39 @@ SECTIONS
   _heap_top = ABSOLUTE(.);
   _eheap = ABSOLUTE(.);
 
-  .text : ALIGN(4)
+  .text : ALIGN(4) /* IRAM */
   {
     _stext = .;
     _text_start = ABSOLUTE(.);
     LONG(_text_start)
     . = ALIGN(16);
-    *(.DebugExceptionVector.text)
+    *(.DebugExceptionVector.text)   /* 0x40100010 */
     . = ALIGN(16);
-    *(.NMIExceptionVector.text)
+    *(.NMIExceptionVector.text)     /* 0x40100020 */
     . = ALIGN(16);
-    *(.KernelExceptionVector.text)
-    LONG(0)
-    LONG(0)
-    LONG(0)
-    LONG(0)
-    . = ALIGN(16);
-    *(.UserExceptionVector.text)
+    *(.KernelExceptionVector.text)  /* 0x40100030 */
     LONG(0)
     LONG(0)
     LONG(0)
     LONG(0)
     . = ALIGN(16);
-    *(.DoubleExceptionVector.text)
+    *(.UserExceptionVector.text)    /* 0x40100050 */
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    . = ALIGN(16);
+    *(.DoubleExceptionVector.text)  /* 0x40100070 */
     LONG(0)
     LONG(0)
     LONG(0)
     LONG(0)
     . = ALIGN (16);
-    *(.UserExceptionTrampoline.text)
+    *(.DebugExceptionHandler.text)  /* 0x40100090 */
+    *(.NMIExceptionHandler.text)
+    *(.KernelExceptionHandler.text)
+    *(.UserExceptionHandler.text)
+    *(.DoubleExceptionHandler.text)
     . = ALIGN (16);
     *(.entry.text)
     *(.init.literal)
@@ -249,9 +253,11 @@ SECTIONS
     /* Xtensa basic functionality written in assembler should be placed in iram */
     *xtensa.a:*(.literal .text .literal.* .text.*)
 
-    /* libgcc integer functions also need to be in .text, as some are called before
-       flash is mapped (also performance)
-    */
+    /* libgcc functions required for debugging have to be in IRAM */
+    *libgcc.a:unwind-dw2.o(.literal .text .literal.* .text.*)
+
+    /* libgcc integer functions also need to be in .text */
+    /* some are called before flash is mapped and also for performance) */
     *libgcc.a:*i3.o(.literal .text .literal.* .text.*)
 
     *libgcc.a:*mulsf3.o(.literal .text .literal.* .text.*)

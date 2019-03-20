@@ -57,6 +57,7 @@
 
 #ifdef MODULE_STDIO_UART
 
+__attribute__((weak))
 int putchar(int c)
 {
     char tmp = c;

@@ -96,96 +96,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Enable stack backtrace across exception/interrupt - see below */
 #define XT_DEBUG_BACKTRACE    1
 
-#if defined(RIOT_VERSION) && defined(MCU_ESP8266)
-#if 1
-/* TODO LICENSE */ 
-/*******************************************************************************
-
-Add to compile passing.
-
-*******************************************************************************/
-
-#undef HAVE_XSR
-#define HAVE_XSR 1
-
-#define _JOIN2(a, b) a ## b
-#define _JOIN3(a, b, c) a ## b ## c
-
-#define JOIN2(a, b) _JOIN2(a, b)
-#define JOIN3(a, b, c) _JOIN3(a, b, c)
-
-#define LABEL(a, b) _JOIN3(a, 3, b)
-
-#define EXCSAVE_LEVEL _JOIN2(EXCSAVE_, 3)
-
-/*******************************************************************************/
-
-#define _INTERRUPT_LEVEL 3
-
-STRUCT_BEGIN
-STRUCT_FIELD (long,4,HESF_SAR, sar)
-#ifdef __XTENSA_WINDOWED_ABI__
-STRUCT_FIELD (long,4,HESF_WINDOWSTART, windowstart)
-STRUCT_FIELD (long,4,HESF_WINDOWBASE, windowbase)
-#endif
-STRUCT_FIELD (long,4,HESF_EPC1, epc1)
-STRUCT_FIELD (long,4,HESF_EXCCAUSE, exccause)
-STRUCT_FIELD (long,4,HESF_EXCVADDR, excvaddr)
-STRUCT_FIELD (long,4,HESF_EXCSAVE1, excsave1)
-STRUCT_FIELD (long,4,HESF_EPC3, epc3)
-STRUCT_FIELD (long,4,HESF_EPS3, eps3)
-#if XCHAL_HAVE_XEA1
-STRUCT_FIELD (long,4,HESF_VPRI, vpri)    /* (XEA1 only) */
-#endif
-#if XCHAL_HAVE_MAC16
-STRUCT_FIELD (long,4,HESF_ACCLO, acclo)
-STRUCT_FIELD (long,4,HESF_ACCHI, acchi)
-/*STRUCT_AFIELD(long,4,HESF_MR, mr, 4)*/
-#endif
-#if XCHAL_HAVE_LOOPS
-STRUCT_FIELD (long,4,HESF_LCOUNT, lcount)
-STRUCT_FIELD (long,4,HESF_LBEG, lbeg)
-STRUCT_FIELD (long,4,HESF_LEND, lend)
-#endif
-#ifdef __XTENSA_WINDOWED_ABI__
-STRUCT_AFIELD(long,4,HESF_AREG, areg, 64)    /* address registers ar0..ar63 */
-#else
-STRUCT_AFIELD(long,4,HESF_AREG, areg, 16)    /* address registers ar0..ar15 */
-#endif
-#define HESF_AR(n)  HESF_AREG+((n)*4)
-STRUCT_END(HighPriFrame)
-#define HESF_TOTALSIZE  HighPriFrameSize+32 /* 32 bytes for interrupted code's save areas under SP */
-
-
-#if XCHAL_HAVE_XEA1 && HAVE_XSR     /* could be made true for T1040 and T1050 */
-# error "high-priority interrupt stack frame needs adjustment if HAVE_XSR is allowed with XEA1"
-#endif
-
-
-#define PRI_N_STACK_SIZE     512    /* default to 1 kB stack for each level-N handling */
-#define PRI_N_STACK_SIZE2    256    /* default to 1 kB stack for each level-N handling */
-
-#define PANIC_STK_FRMSZ      (XT_STK_FRMSZ + 0x10)
-
-    .global panicHandler
-
-    //  Allocate save area and stack:
-    //  (must use .bss, not .comm, because the subsequent .set does not work otherwise)
-    .global _chip_nmi_stk
-    .section .bss, "aw"
-    .align  16
-_chip_nmi_stk:    .space  PRI_N_STACK_SIZE + HESF_TOTALSIZE + PRI_N_STACK_SIZE2 + HESF_TOTALSIZE
-
-#if HAVE_XSR
-    .data
-    .global LABEL(_Pri_,_HandlerAddress)
-LABEL(_Pri_,_HandlerAddress):   .space 4
-    .global _chip_nmi_cnt
-_chip_nmi_cnt:   .space 4
-#endif
-
-#endif /* 0/1 */
-#endif /* defined(RIOT_VERSION) && defined(MCU_ESP8266) */
 /*
 --------------------------------------------------------------------------------
   Defines used to access _xtos_interrupt_table.
@@ -471,13 +381,33 @@ Debug Exception.
 
 #if XCHAL_HAVE_DEBUG
 
-    .begin      literal_prefix .DebugExceptionVector
+/* Debug exception vector trampoline */
+
     .section    .DebugExceptionVector.text, "ax"
     .global     _DebugExceptionVector
-    .literal_position
     .align      4
 
 _DebugExceptionVector:
+    /*
+     * Please note that this code will be overwritten
+     *      
+     *      xsr a2, excsave2
+     *      jx  a2
+     *
+     * if module esp_gdbstub is used.
+     */
+    j       _DebugExceptionHandler
+
+
+/* Debug exception vector handler */
+
+    .begin      literal_prefix .DebugExceptionHandler
+    .section    .DebugExceptionHandler.text, "ax"
+    .global     _DebugExceptionHandler
+    .literal_position
+    .align      4
+
+_DebugExceptionHandler:
 
     #ifdef XT_SIMULATOR
     /*
@@ -491,15 +421,15 @@ _DebugExceptionVector:
     wsr     a3, EXCSAVE+XCHAL_DEBUGLEVEL
     movi    a3, xthal_debugexc_defhndlr_nw  /* use default debug handler */
     jx      a3
-    #else
+    #else /* XT_SIMULATOR */
     wsr     a0, EXCSAVE+XCHAL_DEBUGLEVEL    /* save original a0 somewhere */
     call0   _xt_panic                       /* does not return */
     rfi     XCHAL_DEBUGLEVEL                /* make a0 point here not later */
-    #endif
+    #endif /* XT_SIMULATOR */
 
-    .end        literal_prefix
+    .end    literal_prefix
 
-#endif
+#endif /* XCHAL_HAVE_DEBUG */
 
 /*
 --------------------------------------------------------------------------------
@@ -507,16 +437,27 @@ Double Exception.
 Double exceptions are not a normal occurrence. They indicate a bug of some kind.
 --------------------------------------------------------------------------------
 */
-
 #ifdef XCHAL_DOUBLEEXC_VECTOR_VADDR
 
-    .begin      literal_prefix .DoubleExceptionVector
+/* Double exception vector trampoline */
+
     .section    .DoubleExceptionVector.text, "ax"
     .global     _DoubleExceptionVector
-    .literal_position
     .align      4
 
 _DoubleExceptionVector:
+    j   _DoubleExceptionHandler
+
+
+/* Double exception vector handler */
+
+    .begin      literal_prefix .DoubleExceptionHandler
+    .section    .DoubleExceptionHandler.text, "ax"
+    .global     _DoubleExceptionHandler
+    .literal_position
+    .align      4
+
+_DoubleExceptionHandler:
 
     #if XCHAL_HAVE_DEBUG
     break   1, 4                            /* unhandled double exception */
@@ -534,13 +475,25 @@ Kernel Exception (including Level 1 Interrupt from kernel mode).
 --------------------------------------------------------------------------------
 */
 
-    .begin      literal_prefix .KernelExceptionVector
+/* Kernel exception vector trampoline */
+
     .section    .KernelExceptionVector.text, "ax"
     .global     _KernelExceptionVector
-    .literal_position
     .align      4
 
 _KernelExceptionVector:
+    j   _KernelExceptionHandler
+
+
+/* Kernel exception vector handler */
+
+    .begin      literal_prefix .KernelExceptionHandler
+    .section    .KernelExceptionHandler.text, "ax"
+    .global     _KernelExceptionHandler
+    .literal_position
+    .align      4
+
+_KernelExceptionHandler:
 
     wsr     a0, EXCSAVE_1                   /* preserve a0 */
     call0   _xt_kernel_exc                  /* kernel exception handler */
@@ -566,23 +519,36 @@ User Exception (including Level 1 Interrupt from user mode).
 --------------------------------------------------------------------------------
 */
 
-    .begin      literal_prefix .UserExceptionVector
+#define CAUSE_LOADSTORE         3
+
+/* User exception vector trampoline */
+
     .section    .UserExceptionVector.text, "ax"
     .global     _UserExceptionVector
-    .type       _UserExceptionVector,@function
-    .literal_position
     .align      4
 
 _UserExceptionVector:
+    j   _UserExceptionHandler
+
+/* User exception vector handler */
+
+    .begin      literal_prefix .UserExceptionHandler
+    .section    .UserExceptionHandler.text, "ax"
+    .global     _UserExceptionHandler
+    .type       _UserExceptionHandler,@function
+    .literal_position
+    .align      4
+
+_UserExceptionHandler:
 
 #ifdef MCU_ESP8266
-    wsr     a0, EXCSAVE_1                   /* preserve a0 */
-    j       _UserExceptionTrampoline        /* jump to handler trampoline */
-#else
+    wsr     a1, EXCSAVE_1                   /* preserve a1 */
+    rsr     a1, exccause
+    beqi    a1, CAUSE_LOADSTORE, _LoadStoreErrorHandler
+    rsr     a1, EXCSAVE_1                   /* restore a1 */
+#endif
     wsr     a0, EXCSAVE_1                   /* preserve a0 */
     call0   _xt_user_exc                    /* user exception handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-#endif
 
     .end        literal_prefix
 
@@ -607,7 +573,6 @@ _UserExceptionVector:
  * and thus to place .rodata sections in the IROM (flash).
  */
 
-#define CAUSE_LOADSTORE         3
 #define fatal_exception_handler _xt_user_exc
 
 /* LoadStoreError handler stack */
@@ -622,22 +587,7 @@ _LoadStoreErrorHandlerStack:
     .word   0       # a3
     .word   0       # a4
 
-/* LoadStoreError Trampoline */
-
-    .section .UserExceptionTrampoline.text, "x"
-    .literal_position
-    .balign 4
-
-_UserExceptionTrampoline:
-
-    wsr     a1, EXCSAVE_2                   /* preserve a1 */
-#ifdef MCU_ESP8266
-    rsr     a1, exccause
-    beqi    a1, CAUSE_LOADSTORE, _LoadStoreErrorHandler
-#endif
-    rsr     a1, EXCSAVE_2                   /* restore a1 */
-    call0   _xt_user_exc                    /* user exception handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
+/* LoadStoreError handler */
 
     /*
      * Xtensa "Load/Store Exception" handler:
@@ -648,14 +598,13 @@ _UserExceptionTrampoline:
      *
      * (Fast path (no branches) is for L8UI)
      */
+    .section    .UserExceptionHandler.text, "ax"
     .literal_position
     .balign 4
     .type   LoadStoreErrorHandler, @function
 
 _LoadStoreErrorHandler:
 
-    rsr     a1, EXCSAVE_2                   /* restore a1 */
-    wsr     a1, EXCSAVE_1                   /* save it to excsave1 */
     /* Registers are saved in the address corresponding to their register
      * number times 4.  This allows a quick and easy mapping later on when
      * needing to store the value to a particular register number. */
@@ -2042,6 +1991,8 @@ _xt_highint6:
 
 #if XCHAL_HAVE_NMI
 
+#define NMI_STACK_CANARY 0xABBABABA
+
 /* Stack space for NMI handler
 
    NMI handler stack high water mark measured at 0x134 bytes. Any use
@@ -2049,22 +2000,34 @@ _xt_highint6:
 
    The NMI handler does a basic check for stack overflow
 */
-#define NMI_STACK_CANARY 0xABBABABA
 
     .section .bss
     .balign 16
+
 NMIHandlerStack:
     .skip 0x200
 .NMIHandlerStackTop:
 
-    .begin      literal_prefix .NMIExceptionVector
+/* NMI exception vector trampoline */
+
     .section    .NMIExceptionVector.text, "ax"
     .global     _NMIExceptionVector
-    .type       _NMIExceptionVector,@function
-    .literal_position
-
     .align      4
+
 _NMIExceptionVector:
+    j    _NMIExceptionHandler
+
+/* NMI exception vector handler */
+
+    .begin      literal_prefix .NMIExceptionHandler
+    .section    .NMIExceptionHandler.text, "ax"
+    .global     _NMIExceptionHandler
+    .type       _NMIExceptionHandler,@function
+    .literal_position
+    .align      4
+
+_NMIExceptionHandler:
+
     wsr     a0, EXCSAVE + XCHAL_NMILEVEL  _ /* preserve a0 */
     call0   _xt_nmi                         /* load interrupt handler */
     /* never returns here - call0 is used as a jump (see note at top) */
@@ -2090,339 +2053,8 @@ _xt_nmi:
     ADD HIGH PRIORITY NON-MASKABLE INTERRUPT (NMI) HANDLER CODE HERE.
     */
     #if defined(RIOT_VERSION) && defined(MCU_ESP8266)
-#if 1
-    movi    a0, _chip_nmi_cnt
-    l32i    a0, a0, 0
 
-    bnez    a0, nmi_reentry
-    movi    a0, _chip_nmi_stk + PRI_N_STACK_SIZE  // get ptr to save area
-    j       nmi_common
-nmi_reentry:
-    movi    a0, _chip_nmi_stk + PRI_N_STACK_SIZE + HESF_TOTALSIZE + PRI_N_STACK_SIZE2// get ptr to save area
-nmi_common:
-
-    // interlock
-
-    //  Save a few registers so we can do some work:
-    s32i    a2,  a0, HESF_AR(2)
-#if HAVE_XSR
-    //movi  a0, LABEL(_Level,FromVector)        // this dispatcher's address
-    movi    a2, LABEL(_Pri_,_HandlerAddress)    // dispatcher address var.
-    s32i    a1,  a0, HESF_AR(1)
-    l32i    a2, a2, 0               // get dispatcher address
-    s32i    a3,  a0, HESF_AR(3)
-    xsr a2, EXCSAVE_LEVEL   // get saved a0, restore dispatcher address
-#else
-    #error
-    rsr a2, EXCSAVE_LEVEL   // get saved a0
-    s32i    a1,  a0, HESF_AR(1)
-    s32i    a3,  a0, HESF_AR(3)
-#endif
-    s32i    a4,  a0, HESF_AR(4)
-    s32i    a2,  a0, HESF_AR(0)
-
-    //  Save/restore all exception state
-    //  (IMPORTANT:  this code assumes no general exceptions occur
-    //   during the execution of this dispatcher until this state
-    //   is completely saved and from the point it is restored.)
-    //
-    //  Exceptions that may normally occur within the C handler
-    //  include window exceptions (affecting EPC1), alloca exceptions
-    //  (affecting EPC1/EXCCAUSE and its handling uses EXCSAVE1),
-    //  and possibly others depending on the particular C handler
-    //  (possibly needing save/restore of EXCVADDR; and EXCVADDR
-    //   is also possibly corrupted by any access thru an auto-refill
-    //   way on a processor with a full MMU).
-    //
-    rsr a3, EPC1
-    rsr a4, EXCCAUSE
-    s32i    a3, a0, HESF_EPC1
-    s32i    a4, a0, HESF_EXCCAUSE
-#if !XCHAL_HAVE_XEA1
-    rsr a3, EXCVADDR
-    s32i    a3, a0, HESF_EXCVADDR
-#endif
-    rsr a4, EXCSAVE1
-    s32i    a4, a0, HESF_EXCSAVE1
-    rsr a3, EPC3
-    movi a4, nmi_rfi
-    beq  a3, a4, nmi_reentried
-    s32i    a3, a0, HESF_EPC3
-    rsr a4, EPS3
-    s32i    a4, a0, HESF_EPS3
-
-nmi_reentried:
-
-#ifdef __XTENSA_WINDOWED_ABI__
-    //  Save remainder of entire address register file (!):
-    movi    a2, XCHAL_NUM_AREGS - 8     // how many saved so far
-#endif
-
-    s32i    a5,  a0, HESF_AR(5)
-    s32i    a6,  a0, HESF_AR(6)
-    s32i    a7,  a0, HESF_AR(7)
-
-1:  s32i    a8,  a0, HESF_AR(8)
-    s32i    a9,  a0, HESF_AR(9)
-    s32i    a10, a0, HESF_AR(10)
-    s32i    a11, a0, HESF_AR(11)
-    s32i    a12, a0, HESF_AR(12)
-    s32i    a13, a0, HESF_AR(13)
-    s32i    a14, a0, HESF_AR(14)
-    s32i    a15, a0, HESF_AR(15)
-
-#ifdef __XTENSA_WINDOWED_ABI__
-    addi    a8, a2, -8
-    addi    a10, a0, 8*4
-    rotw    2
-    bnez    a2, 1b          // loop until done
-
-    rotw    2
-    // back to original a2 ...
-
-    //  Save a few other registers required for C:
-    rsr a3, WINDOWSTART
-    rsr a4, WINDOWBASE
-    s32i    a3, a0, HESF_WINDOWSTART
-    s32i    a4, a0, HESF_WINDOWBASE
-
-    //  Setup window registers for first caller:
-    movi    a3, 1
-    movi    a4, 0
-    wsr a3, WINDOWSTART
-    wsr a4, WINDOWBASE
-    rsync
-
-    //  Note:  register window has rotated, ie. a0..a15 clobbered.
-
-#endif /* __XTENSA_WINDOWED_ABI__ */
-
-    //movi    a1, _chip_nmi_stk + PRI_N_STACK_SIZE  // get ptr to save area (is also initial stack ptr)
-    mov     a1, a0
-    movi    a0, 0       // mark start of call frames in stack
-
-    //  Critical state saved, a bit more to do to allow window exceptions...
-
-    //  We now have a C-coherent stack and window state.
-    //  Still have to fix PS while making sure interrupts stay disabled
-    //  at the appropriate level (ie. level 2 and below are disabled in this case).
-
-#if XCHAL_HAVE_XEA1
-    #error
-    movi    a7, _xtos_intstruct     // address of interrupt management globals
-    rsilft  a3, _INTERRUPT_LEVEL, XTOS_LOCKLEVEL    // lockout
-    movi    a4, ~INTLEVEL_N_BELOW_MASK  // mask out all interrupts at this level or lower
-    l32i    a3, a7, XTOS_VPRI_ENABLED_OFS   // read previous _xtos_vpri_enabled
-    l32i    a5, a7, XTOS_ENABLED_OFS    // read _xtos_enabled
-    s32i    a4, a7, XTOS_VPRI_ENABLED_OFS   // set new _xtos_vpri_enabled (mask interrupts as if at _INTERRUPT_LEVEL)
-    s32i    a3, a1, HESF_VPRI       // save previous vpri
-    movi    a2, 0x50020         // WOE=1, UM=1, INTLEVEL=0
-    and a3, a5, a4          // mask out selected interrupts
-    wsr a3, INTENABLE           // disable all low-priority interrupts
-#else
-    //  Load PS for C code, clear EXCM (NOTE: this step is different for XEA1):
-# ifdef __XTENSA_CALL0_ABI__
-    movi    a2, 0x00020 + _INTERRUPT_LEVEL  // WOE=0, CALLINC=0, UM=1, INTLEVEL=N, EXCM=0, RING=0
-# else
-    movi    a2, 0x50020 + _INTERRUPT_LEVEL  // WOE=1, CALLINC=1, UM=1, INTLEVEL=N, EXCM=0, RING=0
-# endif
-
-#endif
-    wsr a2, PS              // update PS to enable window exceptions, etc as per above
-    rsync
-
-    //  Okay, window exceptions can now happen (although we have to call
-    //  deep before any will happen because we've reset WINDOWSTART).
-
-    //  Save other state that might get clobbered by C code:
-
-//////////////////  COMMON DISPATCH CODE BEGIN
-
-    rsr a14, SAR
-    s32i    a14, a1, HESF_SAR
-#if XCHAL_HAVE_LOOPS
-    #error
-    rsr a14, LCOUNT
-    s32i    a14, a1, HESF_LCOUNT
-    rsr a14, LBEG
-    s32i    a14, a1, HESF_LBEG
-    rsr a14, LEND
-    s32i    a14, a1, HESF_LEND
-#endif
-#if XCHAL_HAVE_MAC16
-    #error
-    rsr a14, ACCLO
-    s32i    a14, a1, HESF_ACCLO
-    rsr a14, ACCHI
-    s32i    a14, a1, HESF_ACCHI
-#endif
-
-    //save NMI Count
-    movi    a2, _chip_nmi_cnt
-    l32i    a3, a2, 0
-    addi    a3, a3, 1
-    s32i    a3, a2, 0
-    
-#ifdef __XTENSA_CALL0_ABI__
-//    movi a13, pwm_tim1_intr_handler
-    movi a13, wDev_ProcessFiq
-    callx0  a13         // call interrupt's C handler
-#else
-    movi a13, NMI_Handler
-    callx4  a13         // call interrupt's C handler
-#endif
-
-    //Restore NMI level
-    movi    a2, _chip_nmi_cnt
-    l32i    a3, a2, 0
-    addi    a3, a3, -1
-    s32i    a3, a2, 0
-    
-    beqi    a3, 1, nmi_reentry2
-    movi    a1, _chip_nmi_stk + PRI_N_STACK_SIZE  // get ptr to save area
-    j       nmi_common2
-nmi_reentry2:
-    movi    a1, _chip_nmi_stk + PRI_N_STACK_SIZE + HESF_TOTALSIZE + PRI_N_STACK_SIZE2// get ptr to save area
-nmi_common2:
-
-
-    //  Restore everything, and return.
-
-    //  Three temp registers are required for this code to be optimal (no interlocks) in
-    //  T2xxx microarchitectures with 7-stage pipe; otherwise only two
-    //  registers would be needed.
-    //
-#if XCHAL_HAVE_LOOPS
-    l32i    a13, a1, HESF_LCOUNT
-    l32i    a14, a1, HESF_LBEG
-    l32i    a15, a1, HESF_LEND
-    wsr a13, LCOUNT
-    wsr a14, LBEG
-    wsr a15, LEND
-#endif
-
-#if XCHAL_HAVE_MAC16
-    l32i    a13, a1, HESF_ACCLO
-    l32i    a14, a1, HESF_ACCHI
-    wsr a13, ACCLO
-    wsr a14, ACCHI
-#endif
-    l32i    a15, a1, HESF_SAR
-    wsr a15, SAR
-
-//////////////////  COMMON DISPATCH CODE END
-
-#if XCHAL_HAVE_XEA1
-    //  Here, a7 = address of interrupt management globals
-    l32i    a4, a1, HESF_VPRI       // restore previous vpri
-    rsil    a3, XTOS_LOCKLEVEL      // lockout
-    l32i    a5, a7, XTOS_ENABLED_OFS    // read _xtos_enabled
-    s32i    a4, a7, XTOS_VPRI_ENABLED_OFS   // set new _xtos_vpri_enabled
-    movi    a2, 0x00020 + _INTERRUPT_LEVEL  // WOE=0, UM=1, INTLEVEL=N
-    /* movi    a2, 0x00020 + 0  // WOE=0, UM=1, INTLEVEL=N */
-    and a3, a5, a4          // mask out selected interrupts
-    wsr a3, INTENABLE           // disable all low-priority interrupts
-#else
-    //  Load PS for interrupt exit, set EXCM:
-    movi    a2, 0x00030 + _INTERRUPT_LEVEL  // WOE=0, CALLINC=0, UM=1, INTLEVEL=N, EXCM=1, RING=0
-    /* movi    a2, 0x00030 + 0  // WOE=0, CALLINC=0, UM=1, INTLEVEL=N, EXCM=1, RING=0 */
-#endif
-    wsr a2, PS              // update PS to disable window exceptions, etc as per above
-    rsync
-
-    //  NOTE:  here for XEA1, restore INTENABLE etc...
-
-#ifdef __XTENSA_WINDOWED_ABI__
-    //  Restore window registers:
-    l32i    a2, a1, HESF_WINDOWSTART
-    l32i    a3, a1, HESF_WINDOWBASE
-    wsr a2, WINDOWSTART
-    wsr a3, WINDOWBASE
-    rsync
-    //  Note:  register window has rotated, ie. a0..a15 clobbered.
-
-    //  Reload initial stack pointer:
-    movi    a1, _chip_nmi_stk + PRI_N_STACK_SIZE  // - 16
-    movi    a6, XCHAL_NUM_AREGS - 8     // how many saved so far
-    addi    a7, a1, -8*4
-
-    //  Restore entire register file (!):
-
-1:
-    addi    a14, a6, -8
-    addi    a15, a7, 8*4
-    l32i    a4, a15, HESF_AR(4)
-    l32i    a5, a15, HESF_AR(5)
-    l32i    a6, a15, HESF_AR(6)
-    l32i    a7, a15, HESF_AR(7)
-    l32i    a8, a15, HESF_AR(8)
-    l32i    a9, a15, HESF_AR(9)
-    l32i    a10,a15, HESF_AR(10)
-    l32i    a11,a15, HESF_AR(11)
-    rotw    2
-    bnez    a6, 1b          // loop until done
-
-    l32i    a4, a7, HESF_AR(12)
-    l32i    a5, a7, HESF_AR(13)
-    l32i    a6, a7, HESF_AR(14)
-    l32i    a7, a7, HESF_AR(15)
-    rotw    2
-
-    // back to original a1 ...
-
-#else  /* Call0 ABI: */
-
-    l32i    a4, a1, HESF_AR(4)  // restore general registers
-    l32i    a5, a1, HESF_AR(5)
-    l32i    a6, a1, HESF_AR(6)
-    l32i    a7, a1, HESF_AR(7)
-    l32i    a8, a1, HESF_AR(8)
-    l32i    a9, a1, HESF_AR(9)
-    l32i    a10, a1, HESF_AR(10)
-    l32i    a11, a1, HESF_AR(11)
-    l32i    a12, a1, HESF_AR(12)
-    l32i    a13, a1, HESF_AR(13)
-    l32i    a14, a1, HESF_AR(14)
-    l32i    a15, a1, HESF_AR(15)
-
-#endif  /* __XTENSA_WINDOWED_ABI__ */
-
-    //  Restore exception state:
-    l32i    a2, a1, HESF_EPC1
-    l32i    a3, a1, HESF_EXCCAUSE
-    wsr a2, EPC1
-    wsr a3, EXCCAUSE
-#if !XCHAL_HAVE_XEA1
-    l32i    a2, a1, HESF_EXCVADDR
-    wsr a2, EXCVADDR
-#endif
-    l32i    a3, a1, HESF_EXCSAVE1
-    wsr a3, EXCSAVE1
-    l32i    a2, a1, HESF_EPC3
-    wsr a2, EPC3
-    l32i    a3, a1, HESF_EPS3
-    wsr a3, EPS3
-
-    l32i    a0,  a1, HESF_AR(0)
-
-    /* Re-Open NMI */
-
-    rsr a3, SAR
-    movi a2, 0x3ff
-    slli a2,a2,20
-    wsr a3, SAR
-    rsync
-    movi a3, 1
-    s32i a3,a2,0 
-
-    l32i    a2,  a1, HESF_AR(2)
-    l32i    a3,  a1, HESF_AR(3)
-    l32i    a1,  a1, HESF_AR(1)
-
-nmi_rfi:
-    rfi XCHAL_NMILEVEL
-
-#else /* 0/1 */
+    rsr     a0, EXCSAVE + XCHAL_NMILEVEL /* restore a0 as saved in _NMIExceptionHandler */
 
     /*************************** NMI Handler BEGIN **************************/
     /*
@@ -2473,7 +2105,7 @@ nmi_rfi:
     movi    a0, NMIHandlerStack
     l32i    a3, a0, 0
     movi    a2, NMI_STACK_CANARY
-    bne     a3, a2, .NMIFatalStackOverflow
+    bne     a3, a2, _xt_panic /* .NMIFatalStackOverflow */
 
     l32i    a0, sp, 0x3c
     wsr     a0, sar
@@ -2511,20 +2143,20 @@ nmi_rfi:
     rfi     XCHAL_NMILEVEL
 
     .section .rodata
-
 .NMIStackOverflowErrorMsg:
     .string "\nFATAL: NMI Stack Overflow\n"
 
-    .section .NMIExceptionVector.text, "ax"
+    .section .NMIExceptionhandler.text, "ax"
+    .literal_position
 
 .NMIFatalStackOverflow:
     movi a2, .NMIStackOverflowErrorMsg
     call0 printf
+
 .NMIInfiniteLoop:
     j .NMIInfiniteLoop /* TODO: replace with call to abort() */
 
     /*************************** NMI Handler END ****************************/
-#endif /* 0/1 */
 
     #endif  /* defined(RIOT_VERSION) && defined(MCU_ESP8266) */
 
