@@ -165,7 +165,7 @@ else
     BOOTLOADER ?= bootloader_dout_115200_no_color.bin
 endif
 
-ifeq ($(QEMU), 1)
+ifneq (, $(filter esp_qemu, $(USEMODULE)))
     export FLASHER = dd
     export FFLAGS += if=/dev/zero bs=1M count=1 | tr "\\000" "\\377" > tmp.bin &&
     export FFLAGS += cat $(RIOTCPU)/$(CPU)/bin/$(BOOTLOADER) tmp.bin |
