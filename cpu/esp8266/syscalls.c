@@ -119,18 +119,16 @@ int /* IRAM */ printf(const char* format, ...)
 #endif
 
 #ifndef MODULE_PTHREAD
-
-#define PTHREAD_CANCEL_DISABLE 1
 /*
  * This is a dummy function to avoid undefined references when linking
  * against newlib and module pthread is not used.
  */
+__attribute__((weak))
 int pthread_setcancelstate(int state, int *oldstate)
 {
-    if (oldstate) {
-        *oldstate = PTHREAD_CANCEL_DISABLE;
-    }
-    return 0;
+    (void)state;
+    (void)oldstate;
+    return -EINVAL;
 }
 #endif /*  MODULE_PTHREAD*/
 
@@ -336,7 +334,6 @@ void  __real__free_r(struct _reent *r, void *ptr);
 
 void* __wrap_malloc(size_t size)
 {
-DEBUG("%s %u\n", __func__, size);
     void *ptr = heap_caps_malloc(size, MALLOC_CAP_8BIT);
     DEBUG("%s %p %u\n", __func__, ptr, size);
     return ptr;
