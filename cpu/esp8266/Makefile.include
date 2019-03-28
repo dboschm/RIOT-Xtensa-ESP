@@ -60,6 +60,7 @@ USEMODULE += ps
 USEMODULE += random
 USEMODULE += stdio_uart
 USEMODULE += xtensa
+USEMODULE += xtimer
 
 INCLUDES += -I$(RIOTBOARD)/common/$(CPU)/include
 INCLUDES += -I$(RIOTCPU)/esp_common/vendor/
@@ -86,7 +87,7 @@ CFLAGS  += -DESP_OPEN_SDK -DSCHED_PRIO_LEVELS=32 -DDEVELHELP
 CFLAGS  += -D__ESP_FILE__=__FILE__
 CFLAGS  += -Wno-unused-parameter -Wformat=0
 CFLAGS  += -mlongcalls -mtext-section-literals
-CFLAGS  += -fdata-sections -ffunction-sections -fzero-initialized-in-bss
+CFLAGS  += -ffunction-sections -fdata-sections -fzero-initialized-in-bss
 CFLAGS  += -fexceptions
 ASFLAGS += --longcalls --text-section-literals
 
@@ -124,7 +125,7 @@ endif
 
 LINKFLAGS += -u _malloc_r
 LINKFLAGS += -nostdlib -Wl,-gc-sections -Wl,-static # -Wl,--print-gc-sections
-LINKFLAGS += -Wl,--warn-unresolved-symbols
+
 LINKFLAGS += -T$(RIOTCPU)/$(CPU)/ld/esp8266.rom.ld
 LINKFLAGS += -T$(RIOTCPU)/$(CPU)/ld/esp8266.riot-os.ld
 LINKFLAGS += -T$(RIOTCPU)/$(CPU)/ld/esp8266.peripherals.ld
