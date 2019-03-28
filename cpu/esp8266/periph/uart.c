@@ -143,7 +143,9 @@ static struct uart_hw_t _uarts[] = {
 extern void uart_div_modify(uint8_t uart_no, uint32_t div);
 
 /* forward declaration of internal functions */
-int uart_set_baudrate(uart_t uart, uint32_t baudrate);
+static int _uart_set_baudrate(uart_t uart, uint32_t baudrate);
+static int _uart_set_mode(uart_t uart, uart_data_bits_t data_bits,
+                          uart_parity_t parity, uart_stop_bits_t stop_bits);
 static uint8_t _uart_rx_one_char(uart_t uart);
 static void _uart_tx_one_char(uart_t uart, uint8_t data);
 static void _uart_intr_enable(uart_t uart);
@@ -198,48 +200,13 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
     return UART_OK;
 }
 
+#if MODULE_PERIPH_UART_MODECFG
 int uart_mode(uart_t uart, uart_data_bits_t data_bits, uart_parity_t parity,
               uart_stop_bits_t stop_bits)
 {
-    CHECK_PARAM_RET (uart < UART_NUMOF, UART_NODEV);
-
-    /* set number of data bits */
-    switch (_uarts[uart].data) {
-        case UART_DATA_BITS_5: _uarts[uart].regs->conf0.bit_num = 0; break;
-        case UART_DATA_BITS_6: _uarts[uart].regs->conf0.bit_num = 1; break;
-        case UART_DATA_BITS_7: _uarts[uart].regs->conf0.bit_num = 2; break;
-        case UART_DATA_BITS_8: _uarts[uart].regs->conf0.bit_num = 3; break;
-        default: LOG_TAG_ERROR("uart", "invalid number of data bits\n");
-                 return UART_NOMODE;
-    }
-    _uarts[uart].data = data_bits;
-
-    /* set number of stop bits */
-    switch (_uarts[uart].stop) {
-        case UART_STOP_BITS_1: _uarts[uart].regs->conf0.stop_bit_num = 1; break;
-        case UART_STOP_BITS_2: _uarts[uart].regs->conf0.stop_bit_num = 3; break;
-        default: LOG_TAG_ERROR("uart", "invalid number of stop bits\n");
-                 return UART_NOMODE;
-    }
-    _uarts[uart].stop = stop_bits;
-
-    /* set parity mode */
-    switch (_uarts[uart].parity) {
-        case UART_PARITY_NONE: _uarts[uart].regs->conf0.parity_en = 0;
-                               break;
-        case UART_PARITY_EVEN: _uarts[uart].regs->conf0.parity = 0;
-                               _uarts[uart].regs->conf0.parity_en = 1;
-                               break;
-        case UART_PARITY_ODD: _uarts[uart].regs->conf0.parity = 1;
-                              _uarts[uart].regs->conf0.parity_en = 1;
-                              break;
-        default: LOG_TAG_ERROR("uart", "invalid or unsupported parity mode\n");
-                 return UART_NOMODE;
-    }
-    _uarts[uart].parity = parity;
-
-    return UART_OK;
+    return _uart_set_mode(uart, data_bits, parity, stop_bits);
 }
+#endif
 
 void uart_write(uart_t uart, const uint8_t *data, size_t len)
 {
@@ -292,6 +259,23 @@ void uart_poweroff (uart_t uart)
         default: break;
     }
 #endif
+}
+
+/* systemwide UART initializations */
+void uart_system_init (void)
+{
+    for (unsigned uart = 0; uart < UART_NUMOF; uart++) {
+        /* reset all UART interrupt status registers */
+        _uarts[uart].regs->int_clr.val = ~0;
+    }
+}
+
+void uart_print_config(void)
+{
+    for (unsigned uart = 0; uart < UART_NUMOF; uart++) {
+        ets_printf("\tUART_DEV(%d):\ttxd=%d rxd=%d\n", uart,
+                   _uarts[uart].pin_txd, _uarts[uart].pin_rxd);
+    }
 }
 
 void IRAM _uart_intr_handler (void *arg)
@@ -383,13 +367,13 @@ void _uart_config (uart_t uart)
     while (_uarts[uart].regs->status.txfifo_cnt != 0) { }
 
     /* set baudrate */
-    if (uart_set_baudrate(uart, _uarts[uart].baudrate) != UART_OK) {
+    if (_uart_set_baudrate(uart, _uarts[uart].baudrate) != UART_OK) {
         return;
     }
 
     /* set number of data bits, stop bits and parity mode */
-    if (uart_mode(uart, _uarts[uart].data, _uarts[uart].stop,
-                                           _uarts[uart].parity) != UART_OK) {
+    if (_uart_set_mode(uart, _uarts[uart].data, _uarts[uart].stop,
+                             _uarts[uart].parity) != UART_OK) {
         return;
     }
 
@@ -413,24 +397,7 @@ void _uart_config (uart_t uart)
     }
 }
 
-/* systemwide UART initializations */
-void uart_system_init (void)
-{
-    for (unsigned uart = 0; uart < UART_NUMOF; uart++) {
-        /* reset all UART interrupt status registers */
-        _uarts[uart].regs->int_clr.val = ~0;
-    }
-}
-
-void uart_print_config(void)
-{
-    for (unsigned uart = 0; uart < UART_NUMOF; uart++) {
-        ets_printf("\tUART_DEV(%d):\ttxd=%d rxd=%d\n", uart,
-                   _uarts[uart].pin_txd, _uarts[uart].pin_rxd);
-    }
-}
-
-int uart_set_baudrate(uart_t uart, uint32_t baudrate)
+int _uart_set_baudrate(uart_t uart, uint32_t baudrate)
 {
     DEBUG("%s uart=%d, rate=%d\n", __func__, uart, baudrate);
 
@@ -440,6 +407,8 @@ int uart_set_baudrate(uart_t uart, uint32_t baudrate)
     while (_uarts[uart].regs->status.txfifo_cnt != 0) { }
 
     _uarts[uart].baudrate = baudrate;
+
+    critical_enter();
 
 #ifdef MCU_ESP32
     /* use APB_CLK */
@@ -454,5 +423,61 @@ int uart_set_baudrate(uart_t uart, uint32_t baudrate)
     _uarts[uart].regs->clk_div.val = clk_div & 0xFFFFF;
 #endif
 
+    critical_exit();
+    return UART_OK;
+}
+
+int _uart_set_mode(uart_t uart, uart_data_bits_t data_bits,
+                   uart_parity_t parity, uart_stop_bits_t stop_bits)
+{
+    DEBUG("%s uart=%d, data_bits=%d parity=%d stop_bits=%d\n", __func__,
+          uart, data_bits, parity, stop_bits);
+
+    CHECK_PARAM_RET (uart < UART_NUMOF, UART_NODEV);
+
+    critical_enter();
+
+    /* set number of data bits */
+    switch (data_bits) {
+        case UART_DATA_BITS_5: _uarts[uart].regs->conf0.bit_num = 0; break;
+        case UART_DATA_BITS_6: _uarts[uart].regs->conf0.bit_num = 1; break;
+        case UART_DATA_BITS_7: _uarts[uart].regs->conf0.bit_num = 2; break;
+        case UART_DATA_BITS_8: _uarts[uart].regs->conf0.bit_num = 3; break;
+        default: LOG_TAG_ERROR("uart", "invalid number of data bits\n");
+                 critical_exit();
+                 return UART_NOMODE;
+    }
+    /* store changed number of data bits in configuration */
+    _uarts[uart].data = data_bits;
+
+    /* set number of stop bits */
+    switch (stop_bits) {
+        case UART_STOP_BITS_1: _uarts[uart].regs->conf0.stop_bit_num = 1; break;
+        case UART_STOP_BITS_2: _uarts[uart].regs->conf0.stop_bit_num = 3; break;
+        default: LOG_TAG_ERROR("uart", "invalid number of stop bits\n");
+                 critical_exit();
+                 return UART_NOMODE;
+    }
+    /* store changed number of stop bits in configuration */
+    _uarts[uart].stop = stop_bits;
+
+    /* set parity mode */
+    switch (parity) {
+        case UART_PARITY_NONE: _uarts[uart].regs->conf0.parity_en = 0;
+                               break;
+        case UART_PARITY_EVEN: _uarts[uart].regs->conf0.parity = 0;
+                               _uarts[uart].regs->conf0.parity_en = 1;
+                               break;
+        case UART_PARITY_ODD: _uarts[uart].regs->conf0.parity = 1;
+                              _uarts[uart].regs->conf0.parity_en = 1;
+                              break;
+        default: LOG_TAG_ERROR("uart", "invalid or unsupported parity mode\n");
+                 critical_exit();
+                 return UART_NOMODE;
+    }
+    /* store changed parity in configuration */
+    _uarts[uart].parity = parity;
+
+    critical_exit();
     return UART_OK;
 }
