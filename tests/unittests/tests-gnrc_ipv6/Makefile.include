@@ -1,1 +1,2 @@
+USEMODULE += ps
 USEMODULE += gnrc_ipv6

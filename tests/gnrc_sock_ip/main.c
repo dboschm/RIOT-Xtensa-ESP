@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "ps.h"
 #include "net/sock/ip.h"
 #include "xtimer.h"
 
@@ -37,12 +38,14 @@ static uint8_t _test_buffer[_TEST_BUFFER_SIZE];
 
 static void tear_down(void)
 {
+    ps();
     sock_ip_close(&_sock);
     memset(&_sock, 0, sizeof(_sock));
 }
 
 static void test_sock_ip_create__EAFNOSUPPORT(void)
 {
+    ps();
     static const sock_ip_ep_t local = { .family = AF_UNSPEC };
     static const sock_ip_ep_t remote = { .family = AF_UNSPEC };
 

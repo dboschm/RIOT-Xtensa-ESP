@@ -19,6 +19,7 @@
 #include "net/ipv6/hdr.h"
 #include "net/gnrc/ipv6.h"
 #include "net/gnrc/pktbuf.h"
+#include "ps.h"
 
 #include "unittests-constants.h"
 #include "tests-gnrc_ipv6.h"
@@ -70,6 +71,7 @@ static void set_up(void)
 
 static void tear_down(void)
 {
+    ps();
     gnrc_pktbuf_release(_pkt_w_ip_hdr->next->next);
     gnrc_pktbuf_release(_pkt_no_ip_hdr->next);
 }
