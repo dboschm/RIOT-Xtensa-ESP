@@ -26,6 +26,7 @@
 #include <shell.h>
 #include <thread.h>
 #include <xtimer.h>
+#include <ps.h>
 
 #define NB_THREADS  (5U)
 
@@ -52,7 +53,7 @@ static void *_thread_fn(void *arg)
     return NULL;
 }
 
-int main(void)
+void second(void)
 {
     for (unsigned i = 0; i < NB_THREADS; ++i) {
         pids[i] = thread_create(stacks[i], sizeof(stacks[i]),
@@ -60,11 +61,41 @@ int main(void)
                                 THREAD_CREATE_STACKTEST,
                                 _thread_fn, (void *)i, "thread");
     }
-    /* sleep for a second, so that `ps` shows some % on idle at the beginning */
+    /* sleep for a second, so that `ps` shows some % on idle at the beginning */   
     xtimer_sleep(1);
 
     msg_t msg;
     msg_send(&msg, pids[0]);
+
+    char line_buf[SHELL_DEFAULT_BUFSIZE];
+    shell_run(NULL, line_buf, SHELL_DEFAULT_BUFSIZE);
+}
+
+
+static char stack[THREAD_STACKSIZE_DEFAULT];
+static kernel_pid_t pid;
+static bool continue_recursion = true; 
+
+static void *_recursionFunc(void *arg) {
+    xtimer_usleep(100000);
+    int counter = (int)arg + 1;
+    printf("recursion_counter %d \n", counter);
+    ps();
+    if(continue_recursion) {
+        _recursionFunc((void *)counter);
+    }
+    return NULL;
+}
+
+int main(void)
+{
+    pid = thread_create(
+        stack, 
+        sizeof(stack), 
+        THREAD_PRIORITY_MAIN-1, 
+        THREAD_CREATE_STACKTEST, 
+        _recursionFunc, 
+        (void *)0, "resursive_stack");
 
     char line_buf[SHELL_DEFAULT_BUFSIZE];
     shell_run(NULL, line_buf, SHELL_DEFAULT_BUFSIZE);

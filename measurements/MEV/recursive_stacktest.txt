@@ -1,0 +1,654 @@
+[1;32mBuilding application "tests_ps_schedstatistics" for "native" with MCU "native".[0m
+
+"make" -C /home/david/riot/boards/native
+"make" -C /home/david/riot/boards/native/drivers
+"make" -C /home/david/riot/core
+"make" -C /home/david/riot/cpu/native
+"make" -C /home/david/riot/cpu/native/periph
+"make" -C /home/david/riot/cpu/native/vfs
+"make" -C /home/david/riot/drivers
+"make" -C /home/david/riot/drivers/periph_common
+"make" -C /home/david/riot/sys
+"make" -C /home/david/riot/sys/auto_init
+"make" -C /home/david/riot/sys/div
+"make" -C /home/david/riot/sys/ps
+"make" -C /home/david/riot/sys/shell
+"make" -C /home/david/riot/sys/shell/commands
+"make" -C /home/david/riot/sys/xtimer
+   text	   data	    bss	    dec	    hex	filename
+  37989	    704	  56512	  95205	  173e5	/home/david/riot/tests/ps_schedstatistics/bin/native/tests_ps_schedstatistics.elf
+/home/david/riot/tests/ps_schedstatistics/bin/native/tests_ps_schedstatistics.elf  
+RIOT native interrupts/signals initialized.
+LED_RED_OFF
+LED_GREEN_ON
+RIOT native board initialized.
+RIOT native hardware initialization complete.
+
+main(): This is RIOT! (Version: 2018.04-devel-5452-gc6062-measurements)
+> recursion_counter 1 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.990% |         2
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 2672) | 0x565b00a0 | 0x565b1f10  |  0.009% |         2
+	    | SUM                  |            |     |  36864 ( 4896)
+recursion_counter 2 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.911% |         3
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 2736) | 0x565b00a0 | 0x565b1f10  |  0.088% |         3
+	    | SUM                  |            |     |  36864 ( 4960)
+recursion_counter 3 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.891% |         4
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 2800) | 0x565b00a0 | 0x565b1f10  |  0.108% |         4
+	    | SUM                  |            |     |  36864 ( 5024)
+recursion_counter 4 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.885% |         5
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 2864) | 0x565b00a0 | 0x565b1f10  |  0.114% |         5
+	    | SUM                  |            |     |  36864 ( 5088)
+recursion_counter 5 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.882% |         6
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 2928) | 0x565b00a0 | 0x565b1f10  |  0.117% |         6
+	    | SUM                  |            |     |  36864 ( 5152)
+recursion_counter 6 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.876% |         7
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 2992) | 0x565b00a0 | 0x565b1f10  |  0.123% |         7
+	    | SUM                  |            |     |  36864 ( 5216)
+recursion_counter 7 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.871% |         8
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3056) | 0x565b00a0 | 0x565b1f10  |  0.128% |         8
+	    | SUM                  |            |     |  36864 ( 5280)
+recursion_counter 8 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.871% |         9
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3120) | 0x565b00a0 | 0x565b1f10  |  0.128% |         9
+	    | SUM                  |            |     |  36864 ( 5344)
+recursion_counter 9 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.870% |        10
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3184) | 0x565b00a0 | 0x565b1f10  |  0.129% |        10
+	    | SUM                  |            |     |  36864 ( 5408)
+recursion_counter 10 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.870% |        11
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3248) | 0x565b00a0 | 0x565b1f10  |  0.129% |        11
+	    | SUM                  |            |     |  36864 ( 5472)
+recursion_counter 11 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.870% |        12
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3312) | 0x565b00a0 | 0x565b1f10  |  0.129% |        12
+	    | SUM                  |            |     |  36864 ( 5536)
+recursion_counter 12 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.871% |        13
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3376) | 0x565b00a0 | 0x565b1f10  |  0.128% |        13
+	    | SUM                  |            |     |  36864 ( 5600)
+recursion_counter 13 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        14
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3440) | 0x565b00a0 | 0x565b1f10  |  0.130% |        14
+	    | SUM                  |            |     |  36864 ( 5664)
+recursion_counter 14 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        15
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3504) | 0x565b00a0 | 0x565b1f10  |  0.130% |        15
+	    | SUM                  |            |     |  36864 ( 5728)
+recursion_counter 15 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        16
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3568) | 0x565b00a0 | 0x565b1f10  |  0.130% |        16
+	    | SUM                  |            |     |  36864 ( 5792)
+recursion_counter 16 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        17
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3632) | 0x565b00a0 | 0x565b1f10  |  0.130% |        17
+	    | SUM                  |            |     |  36864 ( 5856)
+recursion_counter 17 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        18
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3696) | 0x565b00a0 | 0x565b1f10  |  0.130% |        18
+	    | SUM                  |            |     |  36864 ( 5920)
+recursion_counter 18 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        19
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3760) | 0x565b00a0 | 0x565b1f10  |  0.130% |        19
+	    | SUM                  |            |     |  36864 ( 5984)
+recursion_counter 19 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        20
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3824) | 0x565b00a0 | 0x565b1f10  |  0.130% |        20
+	    | SUM                  |            |     |  36864 ( 6048)
+recursion_counter 20 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.869% |        21
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3888) | 0x565b00a0 | 0x565b1f10  |  0.130% |        21
+	    | SUM                  |            |     |  36864 ( 6112)
+recursion_counter 21 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.870% |        22
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 3952) | 0x565b00a0 | 0x565b1f10  |  0.129% |        22
+	    | SUM                  |            |     |  36864 ( 6176)
+recursion_counter 22 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.870% |        23
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4016) | 0x565b00a0 | 0x565b1f10  |  0.129% |        23
+	    | SUM                  |            |     |  36864 ( 6240)
+recursion_counter 23 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.867% |        24
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4080) | 0x565b00a0 | 0x565b1f10  |  0.132% |        24
+	    | SUM                  |            |     |  36864 ( 6304)
+recursion_counter 24 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.867% |        25
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4144) | 0x565b00a0 | 0x565b1f10  |  0.132% |        25
+	    | SUM                  |            |     |  36864 ( 6368)
+recursion_counter 25 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.867% |        26
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4208) | 0x565b00a0 | 0x565b1f10  |  0.132% |        26
+	    | SUM                  |            |     |  36864 ( 6432)
+recursion_counter 26 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.866% |        27
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4272) | 0x565b00a0 | 0x565b1f10  |  0.133% |        27
+	    | SUM                  |            |     |  36864 ( 6496)
+recursion_counter 27 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.866% |        28
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4336) | 0x565b00a0 | 0x565b1f10  |  0.133% |        28
+	    | SUM                  |            |     |  36864 ( 6560)
+recursion_counter 28 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.867% |        29
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4400) | 0x565b00a0 | 0x565b1f10  |  0.132% |        29
+	    | SUM                  |            |     |  36864 ( 6624)
+recursion_counter 29 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.867% |        30
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4464) | 0x565b00a0 | 0x565b1f10  |  0.132% |        30
+	    | SUM                  |            |     |  36864 ( 6688)
+recursion_counter 30 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        31
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4528) | 0x565b00a0 | 0x565b1f10  |  0.135% |        31
+	    | SUM                  |            |     |  36864 ( 6752)
+recursion_counter 31 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        32
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4592) | 0x565b00a0 | 0x565b1f10  |  0.135% |        32
+	    | SUM                  |            |     |  36864 ( 6816)
+recursion_counter 32 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        33
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4656) | 0x565b00a0 | 0x565b1f10  |  0.135% |        33
+	    | SUM                  |            |     |  36864 ( 6880)
+recursion_counter 33 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        34
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4720) | 0x565b00a0 | 0x565b1f10  |  0.135% |        34
+	    | SUM                  |            |     |  36864 ( 6944)
+recursion_counter 34 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        35
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4784) | 0x565b00a0 | 0x565b1f10  |  0.135% |        35
+	    | SUM                  |            |     |  36864 ( 7008)
+recursion_counter 35 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        36
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4848) | 0x565b00a0 | 0x565b1f10  |  0.135% |        36
+	    | SUM                  |            |     |  36864 ( 7072)
+recursion_counter 36 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        37
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4912) | 0x565b00a0 | 0x565b1f10  |  0.135% |        37
+	    | SUM                  |            |     |  36864 ( 7136)
+recursion_counter 37 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        38
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 4976) | 0x565b00a0 | 0x565b1f10  |  0.135% |        38
+	    | SUM                  |            |     |  36864 ( 7200)
+recursion_counter 38 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        39
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5040) | 0x565b00a0 | 0x565b1f10  |  0.135% |        39
+	    | SUM                  |            |     |  36864 ( 7264)
+recursion_counter 39 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        40
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5104) | 0x565b00a0 | 0x565b1f10  |  0.135% |        40
+	    | SUM                  |            |     |  36864 ( 7328)
+recursion_counter 40 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        41
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5168) | 0x565b00a0 | 0x565b1f10  |  0.136% |        41
+	    | SUM                  |            |     |  36864 ( 7392)
+recursion_counter 41 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        42
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5232) | 0x565b00a0 | 0x565b1f10  |  0.136% |        42
+	    | SUM                  |            |     |  36864 ( 7456)
+recursion_counter 42 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        43
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5296) | 0x565b00a0 | 0x565b1f10  |  0.136% |        43
+	    | SUM                  |            |     |  36864 ( 7520)
+recursion_counter 43 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.861% |        44
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5360) | 0x565b00a0 | 0x565b1f10  |  0.138% |        44
+	    | SUM                  |            |     |  36864 ( 7584)
+recursion_counter 44 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.861% |        45
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5424) | 0x565b00a0 | 0x565b1f10  |  0.138% |        45
+	    | SUM                  |            |     |  36864 ( 7648)
+recursion_counter 45 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.861% |        46
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5488) | 0x565b00a0 | 0x565b1f10  |  0.138% |        46
+	    | SUM                  |            |     |  36864 ( 7712)
+recursion_counter 46 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.861% |        47
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5552) | 0x565b00a0 | 0x565b1f10  |  0.138% |        47
+	    | SUM                  |            |     |  36864 ( 7776)
+recursion_counter 47 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.861% |        48
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5616) | 0x565b00a0 | 0x565b1f10  |  0.138% |        48
+	    | SUM                  |            |     |  36864 ( 7840)
+recursion_counter 48 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.862% |        49
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5680) | 0x565b00a0 | 0x565b1f10  |  0.137% |        49
+	    | SUM                  |            |     |  36864 ( 7904)
+recursion_counter 49 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.862% |        50
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5744) | 0x565b00a0 | 0x565b1f10  |  0.137% |        50
+	    | SUM                  |            |     |  36864 ( 7968)
+recursion_counter 50 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.862% |        51
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5808) | 0x565b00a0 | 0x565b1f10  |  0.137% |        51
+	    | SUM                  |            |     |  36864 ( 8032)
+recursion_counter 51 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        52
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5872) | 0x565b00a0 | 0x565b1f10  |  0.136% |        52
+	    | SUM                  |            |     |  36864 ( 8096)
+recursion_counter 52 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        53
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 5936) | 0x565b00a0 | 0x565b1f10  |  0.136% |        53
+	    | SUM                  |            |     |  36864 ( 8160)
+recursion_counter 53 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        54
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6000) | 0x565b00a0 | 0x565b1f10  |  0.136% |        54
+	    | SUM                  |            |     |  36864 ( 8224)
+recursion_counter 54 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        55
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6064) | 0x565b00a0 | 0x565b1f10  |  0.136% |        55
+	    | SUM                  |            |     |  36864 ( 8288)
+recursion_counter 55 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        56
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6128) | 0x565b00a0 | 0x565b1f10  |  0.136% |        56
+	    | SUM                  |            |     |  36864 ( 8352)
+recursion_counter 56 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        57
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6192) | 0x565b00a0 | 0x565b1f10  |  0.136% |        57
+	    | SUM                  |            |     |  36864 ( 8416)
+recursion_counter 57 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        58
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6256) | 0x565b00a0 | 0x565b1f10  |  0.135% |        58
+	    | SUM                  |            |     |  36864 ( 8480)
+recursion_counter 58 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        59
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6320) | 0x565b00a0 | 0x565b1f10  |  0.136% |        59
+	    | SUM                  |            |     |  36864 ( 8544)
+recursion_counter 59 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        60
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6384) | 0x565b00a0 | 0x565b1f10  |  0.136% |        60
+	    | SUM                  |            |     |  36864 ( 8608)
+recursion_counter 60 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        61
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6448) | 0x565b00a0 | 0x565b1f10  |  0.136% |        61
+	    | SUM                  |            |     |  36864 ( 8672)
+recursion_counter 61 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        62
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6512) | 0x565b00a0 | 0x565b1f10  |  0.136% |        62
+	    | SUM                  |            |     |  36864 ( 8736)
+recursion_counter 62 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.863% |        63
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6576) | 0x565b00a0 | 0x565b1f10  |  0.136% |        63
+	    | SUM                  |            |     |  36864 ( 8800)
+recursion_counter 63 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        64
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6640) | 0x565b00a0 | 0x565b1f10  |  0.135% |        64
+	    | SUM                  |            |     |  36864 ( 8864)
+recursion_counter 64 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        65
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6704) | 0x565b00a0 | 0x565b1f10  |  0.135% |        65
+	    | SUM                  |            |     |  36864 ( 8928)
+recursion_counter 65 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        66
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6768) | 0x565b00a0 | 0x565b1f10  |  0.135% |        66
+	    | SUM                  |            |     |  36864 ( 8992)
+recursion_counter 66 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        67
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6832) | 0x565b00a0 | 0x565b1f10  |  0.135% |        67
+	    | SUM                  |            |     |  36864 ( 9056)
+recursion_counter 67 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        68
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6896) | 0x565b00a0 | 0x565b1f10  |  0.135% |        68
+	    | SUM                  |            |     |  36864 ( 9120)
+recursion_counter 68 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        69
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 6960) | 0x565b00a0 | 0x565b1f10  |  0.135% |        69
+	    | SUM                  |            |     |  36864 ( 9184)
+recursion_counter 69 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        70
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7024) | 0x565b00a0 | 0x565b1f10  |  0.135% |        70
+	    | SUM                  |            |     |  36864 ( 9248)
+recursion_counter 70 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        71
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7088) | 0x565b00a0 | 0x565b1f10  |  0.135% |        71
+	    | SUM                  |            |     |  36864 ( 9312)
+recursion_counter 71 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        72
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7152) | 0x565b00a0 | 0x565b1f10  |  0.135% |        72
+	    | SUM                  |            |     |  36864 ( 9376)
+recursion_counter 72 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        73
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7216) | 0x565b00a0 | 0x565b1f10  |  0.135% |        73
+	    | SUM                  |            |     |  36864 ( 9440)
+recursion_counter 73 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        74
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7280) | 0x565b00a0 | 0x565b1f10  |  0.135% |        74
+	    | SUM                  |            |     |  36864 ( 9504)
+recursion_counter 74 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        75
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7344) | 0x565b00a0 | 0x565b1f10  |  0.135% |        75
+	    | SUM                  |            |     |  36864 ( 9568)
+recursion_counter 75 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        76
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7408) | 0x565b00a0 | 0x565b1f10  |  0.135% |        76
+	    | SUM                  |            |     |  36864 ( 9632)
+recursion_counter 76 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        77
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7472) | 0x565b00a0 | 0x565b1f10  |  0.134% |        77
+	    | SUM                  |            |     |  36864 ( 9696)
+recursion_counter 77 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        78
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7536) | 0x565b00a0 | 0x565b1f10  |  0.134% |        78
+	    | SUM                  |            |     |  36864 ( 9760)
+recursion_counter 78 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        79
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7600) | 0x565b00a0 | 0x565b1f10  |  0.134% |        79
+	    | SUM                  |            |     |  36864 ( 9824)
+recursion_counter 79 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        80
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7664) | 0x565b00a0 | 0x565b1f10  |  0.134% |        80
+	    | SUM                  |            |     |  36864 ( 9888)
+recursion_counter 80 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        81
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7728) | 0x565b00a0 | 0x565b1f10  |  0.135% |        81
+	    | SUM                  |            |     |  36864 ( 9952)
+recursion_counter 81 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        82
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7792) | 0x565b00a0 | 0x565b1f10  |  0.135% |        82
+	    | SUM                  |            |     |  36864 (10016)
+recursion_counter 82 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        83
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7856) | 0x565b00a0 | 0x565b1f10  |  0.135% |        83
+	    | SUM                  |            |     |  36864 (10080)
+recursion_counter 83 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        84
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7920) | 0x565b00a0 | 0x565b1f10  |  0.135% |        84
+	    | SUM                  |            |     |  36864 (10144)
+recursion_counter 84 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.864% |        85
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 7984) | 0x565b00a0 | 0x565b1f10  |  0.135% |        85
+	    | SUM                  |            |     |  36864 (10208)
+recursion_counter 85 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        86
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 8048) | 0x565b00a0 | 0x565b1f10  |  0.134% |        86
+	    | SUM                  |            |     |  36864 (10272)
+recursion_counter 86 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        87
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 8112) | 0x565b00a0 | 0x565b1f10  |  0.134% |        87
+	    | SUM                  |            |     |  36864 (10336)
+recursion_counter 87 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        88
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 8176) | 0x565b00a0 | 0x565b1f10  |  0.134% |        88
+	    | SUM                  |            |     |  36864 (10400)
+recursion_counter 88 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        89
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 8184) | 0x565b00a0 | 0x565b1f10  |  0.134% |        89
+	    | SUM                  |            |     |  36864 (10408)
+recursion_counter 89 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+	  1 | idle                 | pending  Q |  15 |   8192 (  420) | 0x565b50c0 | 0x565b6f30  |  0.000% |         0
+	  2 | main                 | pending  Q |   7 |  12288 ( 1804) | 0x565b20c0 | 0x565b4f30  | 99.865% |        90
+	  3 | resursive_stack      | running  Q |   6 |   8192 ( 8192) | 0x565b00a0 | 0x565b1f10  |  0.134% |        90
+	    | SUM                  |            |     |  36864 (10416)
+recursion_counter 90 
+	pid | name                 | state    Q | pri | stack  ( used) | base addr  | current     | runtime  | switches
+	  - | isr_stack            | -        - |   - |   8192 (   -1) | 0x565b75e0 | 0x565b75e0
+/home/david/riot/tests/ps_schedstatistics/../../Makefile.include:547: recipe for target 'term' failed
